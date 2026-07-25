@@ -34,13 +34,23 @@ entities:
   ACT:
     label: 試行
     dir: activities
-    # 外界への働きかけ（ReAct の Act）。self-reflection は「ゆさぶり」監査の記録用（内省 REF とは別）。
+    # 外界への働きかけの「行動計画」（ReAct の Act の計画）。テストカード（目的・方法・指標・成功基準・
+    # 許容損失）だけを持ち、検証前に立てる。実施後の学びは LEARN に分離する（行動計画と学びを混ぜない）。
+    # self-reflection は「ゆさぶり」監査の記録用（内省 REF とは別）。
     subtypes:
       - {name: 打診}            # 声かけ・提案・打診
       - {name: やってみる}       # 試作・小さく実行
       - {name: 面談}            # 面談・インタビュー・対話
       - {name: 観察}            # 観察・現場を見る
       - {name: self-reflection}  # ゆさぶり（反証監査）活動。テストカード付き
+
+  LEARN:
+    label: 学習
+    dir: learnings
+    # 試行(ACT)を実施した後に得た学びの結晶。学びの要点／事実(observed)／解釈(inference)／
+    # 驚き・想定外／確信度の更新提案／次のアクション を持つ。行動計画(ACT)から分離し、
+    # 実施後にだけ立つ（learns-from で対象の ACT に紐づく）。成功基準の判定は frontmatter outcome。
+    subtypes: []
 
   REF:
     label: 内省
@@ -121,6 +131,17 @@ relations:
     label: 検証対象
     inverse-label: 検証活動
     description: この試行が検証する目的仮説
+
+  - name: learns-from
+    field: learns-from
+    domain: LEARN
+    range: ACT
+    cardinality: one
+    inverse: learned-by
+    must-wikilink: true
+    label: 学習元
+    inverse-label: 学習
+    description: この学習が基づく試行（実施済みの行動計画）。ACT（計画）と LEARN（学び）を分離する軸
 
   - name: reflects-on
     field: reflects-on

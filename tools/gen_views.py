@@ -25,9 +25,9 @@ from ontology import (  # noqa: E402
 
 # ---- 共通ヘルパ ----
 
-def fictional_acts(project) -> list:
-    """本文に架空/シミュレーションマーカーを含む ACT の stem を並べる。"""
-    return sorted(s for s in project.records if "-ACT-" in s
+def fictional_records(project) -> list:
+    """本文に架空/シミュレーションマーカーを含む ACT/LEARN（試行・学び）の stem を並べる。"""
+    return sorted(s for s in project.records if entity_of(s) in ("ACT", "LEARN")
                   and any(m in project.records[s][2] for m in FICTIONAL_MARKERS))
 
 
@@ -42,13 +42,19 @@ def next_to_verify(project, purps) -> list:
 
 
 def testcard(text: str) -> str:
-    m = re.search(r"## テストカード.*?(?=## 学習カード|\Z)", text, re.DOTALL)
-    return m.group(0) if m else ""
+    """ACT の行動計画（テストカード）本文。ACT は計画のみを持つので「## 行動計画」以降。"""
+    m = re.search(r"## 行動計画.*\Z", text, re.DOTALL)
+    return m.group(0) if m else text
 
 
-def learning(text: str) -> str:
-    m = re.search(r"## 学習カード.*\Z", text, re.DOTALL)
-    return m.group(0) if m else ""
+def learn_by_act(project) -> dict:
+    """learns-from の逆引き: ACT stem → その試行に紐づく LEARN の stem リスト。"""
+    idx = {}
+    for stem, (_, fm, _) in project.records.items():
+        if entity_of(stem) == "LEARN":
+            for a in parse_id_array(fm.get("learns-from", "")):
+                idx.setdefault(a, []).append(stem)
+    return idx
 
 
 def collapse(text: str) -> str:
@@ -75,16 +81,16 @@ def h3_block(section: str, header: str) -> str:
     return m.group(1).strip() if m else ""
 
 
-def is_executed(lc: str) -> bool:
-    """学習カードが実際に記入済みか（未実施の計画 ACT はプレースホルダのみ）を判定する。"""
-    real = [ln.strip() for ln in strip_comments(h3_block(lc, "事実")).splitlines()
+def is_executed(lbody: str) -> bool:
+    """紐づく LEARN の「事実（observed）」が実際に記入済みか（雛形のプレースホルダのみでないか）。"""
+    real = [ln.strip() for ln in strip_comments(h3_block(lbody, "事実")).splitlines()
             if ln.strip() and not ln.strip().startswith("（") and "記入" not in ln
             and not ln.strip().startswith("観測した事実")]
     return bool(real)
 
 
-def learning_point(lc: str) -> str:
-    return collapse(h3_block(lc, "学びの要点"))
+def learning_point(lbody: str) -> str:
+    return collapse(h3_block(lbody, "学びの要点"))
 
 
 def index_by(project, kind, key_field) -> dict:
@@ -161,26 +167,32 @@ def gen_board(project) -> str:
             for a in parse_id_array(fm.get("based-on", "")):
                 dec_by_act.setdefault(a, []).append(label)
 
+    learns = learn_by_act(project)
+
     def entry(stem) -> dict:
         _, fm, text = project.records[stem]
-        lc = learning(text)
-        executed = is_executed(lc)
         tc = testcard(text)
+        learn_stem = sorted(learns.get(stem, []))[0] if learns.get(stem) else None
+        lfm, lbody = ((project.records[learn_stem][1], project.records[learn_stem][2])
+                      if learn_stem else (None, ""))
+        executed = learn_stem is not None and is_executed(lbody)
         return {
             "fm": fm, "ids": parse_id_array(fm.get("purposes", "")),
             "risk": fm.get("riskiest-assumption", "—") or "—",
             "method": field_value(tc, "方法"), "criteria": field_value(tc, "成功基準"),
-            "result": (learning_point(lc) or "—") if executed else "（未実施・計画のみ）",
-            "outcome": fm.get("outcome", "").strip() or ("—" if executed else "未実施"),
+            "result": (learning_point(lbody) or "—") if executed else "（未実施・計画のみ）",
+            "outcome": (lfm.get("outcome", "").strip() or "—") if learn_stem else "未実施",
+            "learn": learn_stem,
             "judgment": " / ".join(dec_by_act.get(stem, [])) or "—",
         }
 
     entries = {s: entry(s) for s in acts}
 
-    L = header_lines("board", mode, today, fictional_acts(project))
+    L = header_lines("board", mode, today, fictional_records(project))
     L += ["", f"# 試行ボード（{project.slug}）", ""]
-    L.append("各 ACT（試行）を1実験として date 昇順に並べる。「最もリスクの高い前提」「結果（学びの要点）」"
-             "「判定」はレコード（ACT frontmatter `riskiest-assumption`/`outcome`・学習カード）、"
+    L.append("各 ACT（試行＝行動計画）を1実験として date 昇順に並べる。「最もリスクの高い前提」は "
+             "ACT frontmatter `riskiest-assumption`、「結果（学びの要点）」「判定」は当該 ACT に "
+             "`learns-from` で紐づく LEARN（学び・frontmatter `outcome`）、"
              "「判断」は当該 ACT を `based-on` に持つ DEC 由来。すべて射影・逐語転記。")
     L.append("")
 
@@ -201,7 +213,8 @@ def gen_board(project) -> str:
             f"- **最もリスクの高い前提**: {e['risk']}",
             f"- **検証方法**: {e['method']}",
             f"- **成功基準**: {e['criteria']}",
-            f"- **結果（学びの要点）**: {e['result']}",
+            f"- **結果（学びの要点）**: {e['result']}"
+            + (f"（学び [[{e['learn']}]]）" if e['learn'] else ""),
             f"- **判定 / 判断**: {e['outcome']} ／ {e['judgment']}",
             "",
             "---",
@@ -255,7 +268,7 @@ def gen_list(project) -> str:
     stems = {s for s, _, _, _ in purps}
     act_by_purp = index_by(project, "-ACT-", "purposes")
 
-    L = header_lines("list", mode, today, fictional_acts(project))
+    L = header_lines("list", mode, today, fictional_records(project))
     L += ["", f"# 目的仮説リスト（{project.slug}）", ""]
     L.append("★=核心目的（`core`）。関連列は ← 派生元（`derived-from`）／⟲ 書換（`revises`）／"
              "→ 因果先（`leads-to`）／⚡対抗（`counters`）／検証活動（ACT）。")
@@ -344,7 +357,7 @@ def gen_relations(project):
     today = datetime.date.today().isoformat()
     edges = relation_edges(project)
 
-    L = header_lines("relations", mode, today, fictional_acts(project))
+    L = header_lines("relations", mode, today, fictional_records(project))
     L += ["", f"# 関係グラフ（{project.slug}）", ""]
     L.append("レコード間の型付きリンク（オントロジーの関係）を frontmatter から射影する。"
              "ノード=レコード、矢印=関係（ラベル=関係名）。関係の定義は "

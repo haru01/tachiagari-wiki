@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""不変ルール6の git 検出: 学習カード記入済み ACT のテストカードが base と比べて
-書き換えられていないかをチェックする（pre-commit は --staged、レビュー時は --base <ref>）。
+"""不変ルール7の git 検出: 実施済み（学び LEARN が紐づいた）ACT の行動計画（テストカード）が
+base と比べて書き換えられていないかをチェックする（pre-commit は --staged、レビュー時は --base <ref>）。
 
-学習カードが未記入（検証開始前）の ACT はテストカードを直してよい。
-判定はヒューリスティック（「### 事実（observed）」節に本文があるか）なので、
-false positive 時は人間がレビューで判断する。
+ACT（行動計画）と LEARN（実施後の学び）はレコードとして分離されている。ある ACT に learns-from で
+紐づく LEARN が base 時点で既に存在していれば、その試行は検証開始済み＝行動計画は凍結する
+（成功基準を後知恵で書き換えない）。まだ学びが無い ACT は行動計画を直してよい（事後補完も可）。
 """
 import argparse
 import re
 import subprocess
 import sys
 
-TEST_SECTION_RE = re.compile(r"## テストカード.*?(?=## 学習カード|\Z)", re.DOTALL)
-FACTS_RE = re.compile(r"### 事実（observed）(.*?)(?=###|\Z)", re.DOTALL)
+PLAN_RE = re.compile(r"## 行動計画.*\Z", re.DOTALL)
+ACT_ID_RE = re.compile(r"([A-Z0-9]+-ACT-\d+)")
 
 
 def git(*args) -> subprocess.CompletedProcess:
@@ -20,18 +20,31 @@ def git(*args) -> subprocess.CompletedProcess:
 
 
 def testcard(text: str) -> str:
-    m = TEST_SECTION_RE.search(text)
-    return m.group(0) if m else ""
+    m = PLAN_RE.search(text)
+    return m.group(0) if m else text
 
 
-def learning_filled(text: str) -> bool:
-    m = FACTS_RE.search(text)
+def parse_learns_from(text: str) -> list:
+    """LEARN frontmatter の learns-from（単一 or 配列表記）から ACT id を取り出す。"""
+    m = re.search(r"^learns-from:\s*(.*)$", text, re.MULTILINE)
     if not m:
-        return False
-    body = re.sub(r"<!--.*?-->", "", m.group(1), flags=re.DOTALL)
-    lines = [l for l in body.splitlines()
-             if l.strip() and not l.strip().startswith("観測した事実")]
-    return bool(lines)
+        return []
+    return ACT_ID_RE.findall(m.group(1))
+
+
+def executed_acts_at(ref: str) -> set:
+    """ref 時点で LEARN（learns-from）が紐づいている ACT id の集合。"""
+    out = set()
+    tree = git("ls-tree", "-r", "--name-only", ref)
+    if tree.returncode != 0:
+        return out
+    for f in tree.stdout.splitlines():
+        if "/wiki/learnings/" not in f or not f.endswith(".md"):
+            continue
+        show = git("show", f"{ref}:{f}")
+        if show.returncode == 0:
+            out.update(parse_learns_from(show.stdout))
+    return out
 
 
 def main() -> int:
@@ -46,8 +59,12 @@ def main() -> int:
         diff = git("diff", "--name-only", f"{args.base}...HEAD")
     changed = [f for f in diff.stdout.splitlines()
                if "/wiki/activities/" in f and f.endswith(".md")]
+    executed = executed_acts_at(args.base)   # base 時点で学びが紐づいていた ACT
     failures = []
     for f in changed:
+        act_id_match = ACT_ID_RE.search(f)
+        if not act_id_match or act_id_match.group(1) not in executed:
+            continue  # 学びがまだ無い（検証開始前）の行動計画は直してよい
         base_show = git("show", f"{args.base}:{f}")
         if base_show.returncode != 0:
             continue  # 新規ファイルは対象外
@@ -61,14 +78,12 @@ def main() -> int:
                 head_text = open(f, encoding="utf-8").read()
             except FileNotFoundError:
                 continue  # 削除されたファイルは対象外
-        base_text = base_show.stdout
-        if not learning_filled(base_text):
-            continue  # 検証開始前はテストカードを直してよい
-        if testcard(base_text) != testcard(head_text):
+        if testcard(base_show.stdout) != testcard(head_text):
             failures.append(f)
     for f in failures:
         print(f"[error] testcard-immutable | {f} | "
-              "学習カード記入済みACTのテストカードが変更されている（不変ルール6・後知恵バイアス防止）")
+              "学び(LEARN)が紐づいた実施済みACTの行動計画（成功基準）が変更されている"
+              "（不変ルール7・後知恵バイアス防止）")
     return 1 if failures else 0
 
 

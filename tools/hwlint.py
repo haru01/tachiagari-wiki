@@ -48,7 +48,7 @@ def parse_id_array(value: str) -> list:
 
 
 def entity_of(stem: str) -> str:
-    """レコード stem からエンティティ種別（P/C/ACT/REF/DEC）を返す。該当なしは空。"""
+    """レコード stem からエンティティ種別（P/C/ACT/LEARN/REF/DEC）を返す。該当なしは空。"""
     for infix in ENTITY_INFIXES:
         if f"-{infix}-" in stem:
             return infix
@@ -157,7 +157,7 @@ def check_id_matches_filename(project) -> list:
                                     f"frontmatter id '{fid}' がファイル名 '{stem}' と一致しない"))
     for p in project.stray:
         problems.append(Problem("warning", str(p), "id-filename",
-                                "レコード名が ID 規約（<PREFIX>-P/C/ACT/REF/DEC-NNN）に合わない"))
+                                "レコード名が ID 規約（<PREFIX>-P/C/ACT/LEARN/REF/DEC-NNN）に合わない"))
     return problems
 
 
@@ -409,6 +409,11 @@ def check_fictional_cap(project) -> list:
     problems = []
     fictional_acts = {stem for stem, (_, _, body) in project.records.items()
                       if "-ACT-" in stem and any(m in body for m in FICTIONAL_MARKERS)}
+    # 学び(LEARN)本文の架空マーカーは、その学びが learns-from で紐づく ACT に伝播させる
+    # （確信度履歴は ACT を証拠リンクに持つため。行動計画と学びを分離しても架空上限を貫く）。
+    for stem, (_, fm, body) in project.records.items():
+        if "-LEARN-" in stem and any(m in body for m in FICTIONAL_MARKERS):
+            fictional_acts.update(parse_id_array(fm.get("learns-from", "")))
     for stem, _, _, rows in project.purpose_records():
         for row in rows:
             rc = row["confidence"]

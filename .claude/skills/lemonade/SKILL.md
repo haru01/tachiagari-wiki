@@ -11,7 +11,7 @@ description: エフェクチュエーション④「レモネード」。想定�
 
 ## 手順
 
-1. **現在案件を読む**（→ 共通規約1）。`wiki/reflections/`（内省 REF）の「驚き」、ACT 学習カードの「驚き・想定外」、`wiki/log.md` の断られ・想定外、`wiki/purposes/` の既存 P を棚卸しする。
+1. **現在案件を読む**（→ 共通規約1）。`wiki/reflections/`（内省 REF）の「驚き」、`wiki/learnings/`（学び LEARN）の「驚き・想定外」、`wiki/log.md` の断られ・想定外、`wiki/purposes/` の既存 P を棚卸しする。
 
 2. **レモン（想定外）を集める** — 逆手に取れる素材を並べる:
    - REF・ACT に記録された**驚き**（予想と違ったこと）。

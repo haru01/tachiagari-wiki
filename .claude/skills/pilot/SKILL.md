@@ -39,10 +39,9 @@ description: エフェクチュエーション⑤「飛行機の中のパイロ�
 
    対象ごとに **予測への逃避の兆候／危うい前提／根拠不足の具体指摘（どの履歴行のどのタグが弱いか）／別解釈** を構造化して書く。**一度置いた source は編集しない**。
 
-5. **self-reflection の試行レコード（ACT）を作る** — `wiki/activities/` の既存最大+1で `ACT-NNN` を採番し `templates/activity.md` に従い `type: self-reflection` で作成する。
-   - 本文冒頭に `対象目的: [[P-NNN]]` と `監査材料: sources/YYYY-MM-DD-pilot-<topic>.md`（相対mdリンク）。frontmatter `purposes` は接頭辞つき配列。
-   - **テストカード**（事前登録・後から書き換えない）: 成功基準＝**現在の確信度が外界に触れた証拠で正当化できなければ引き下げ、正当化できれば据え置き（＝反証耐性の確認）**。`riskiest-assumption` に監査が崩しに行く前提を一文。
-   - **学習カード**: 学びの要点／事実（記録に何が書かれているか引用）／解釈（どこが予測への逃避か・根拠不足か）／驚き・想定外／確信度の更新テーブル／次のアクション。引き下げたら `outcome: 是正`、崩れず据え置きなら `outcome: 判断保留`。
+5. **self-reflection の試行レコード（ACT）と学び（LEARN）を作る** — 行動計画 ACT（監査の設計）と実施後の学び LEARN（監査の結論）は別レコード。
+   - **行動計画 ACT**: `wiki/activities/` の既存最大+1で `ACT-NNN` を採番し `templates/activity.md` に従い `type: self-reflection` で作成する。本文冒頭に `対象目的: [[P-NNN]]` と `監査材料: sources/YYYY-MM-DD-pilot-<topic>.md`（相対mdリンク）。frontmatter `purposes` は接頭辞つき配列。行動計画（テストカード・事前登録・後から書き換えない）: 成功基準＝**現在の確信度が外界に触れた証拠で正当化できなければ引き下げ、正当化できれば据え置き（＝反証耐性の確認）**。`riskiest-assumption` に監査が崩しに行く前提を一文。
+   - **学び LEARN**: `wiki/learnings/` の既存最大+1で `LEARN-NNN` を採番し `templates/learning.md` に従い作成する。`learns-from` に監査の `[[ACT-NNN]]`（本文にも wikilink）。本文に学びの要点／事実（記録に何が書かれているか引用）／解釈（どこが予測への逃避か・根拠不足か）／驚き・想定外／確信度の更新テーブル／次のアクション。引き下げたら `outcome: 是正`、崩れず据え置きなら `outcome: 判断保留`。
 
 6. **確信度の引き下げを提案する（提案 → 承認 → 反映）** — 対象ごとに **現在値 → 提案値・提案ステータス・理由（発火した観点）** を提示する。**必ずユーザーの承認を得てから反映する**。
    - **引き下げは、現在値が外界に触れた証拠で正当化できないと示せる場合に限る**（例: 6だが根拠が〈壁打ち〉のみ→3、反証が出ているのに据え置き→引き下げ＋status変更）。
@@ -55,7 +54,7 @@ description: エフェクチュエーション⑤「飛行機の中のパイロ�
    - **露出した別解釈・新しい探索域** → `/lemonade` へ送る（想定外・別方向を新しい目的の種に）。
 
 8. **index・log・explore-log を更新する** — `wiki/index.md` の該当行を更新。`wiki/log.md` に追記:
-   `## [YYYY-MM-DD] pilot | ACT-NNN 反証監査 → P-NNN 確信度X→Y（根拠不足）／P-MMM 据え置き（反証耐性確認）`
+   `## [YYYY-MM-DD] pilot | ACT-NNN/LEARN-NNN 反証監査 → P-NNN 確信度X→Y（根拠不足）／P-MMM 据え置き（反証耐性確認）`
    `wiki/explore-log.md` に追記:
    `## [YYYY-MM-DD] 意図的引き下げ | P-NNN 確信度X→Y（予測への逃避／根拠不足）／次の行動: …`
 
