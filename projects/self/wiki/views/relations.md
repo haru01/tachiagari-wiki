@@ -19,12 +19,16 @@ flowchart LR
     end
     subgraph ACT["試行 ACT"]
       SELF_ACT_001["ACT-001 訪問先マネージャ2人にtachiagar…"]
+      SELF_ACT_002["ACT-002 別会社の同僚1人にhypothesis-…"]
+      SELF_ACT_003["ACT-003 社内の同僚1人に/lean-canvas…"]
     end
     SELF_P_001 -->|接地する制約| SELF_C_001
     SELF_P_001 -->|接地する制約| SELF_C_002
     SELF_P_001 -->|接地する制約| SELF_C_003
     SELF_P_001 -->|接地する制約| SELF_C_004
     SELF_ACT_001 -->|検証対象| SELF_P_001
+    SELF_ACT_002 -->|検証対象| SELF_P_001
+    SELF_ACT_003 -->|検証対象| SELF_P_001
 ```
 
 ## 関係インデックス
@@ -55,6 +59,8 @@ flowchart LR
 | 始点 | 関係 | 終点 |
 |---|---|---|
 | [[SELF-ACT-001]] | 検証対象 → | [[SELF-P-001]] |
+| [[SELF-ACT-002]] | 検証対象 → | [[SELF-P-001]] |
+| [[SELF-ACT-003]] | 検証対象 → | [[SELF-P-001]] |
 
 ### 学習元（`learns-from`: LEARN→ACT）
 
@@ -86,7 +92,7 @@ flowchart LR
 - [[SELF-C-002]] ← 接地する目的: [[SELF-P-001]]
 - [[SELF-C-003]] ← 接地する目的: [[SELF-P-001]]
 - [[SELF-C-004]] ← 接地する目的: [[SELF-P-001]]
-- [[SELF-P-001]] ← 検証活動: [[SELF-ACT-001]]
+- [[SELF-P-001]] ← 検証活動: [[SELF-ACT-001]] [[SELF-ACT-002]] [[SELF-ACT-003]]
 
 ## 目的↔制約 接地（grounded-in）
 
