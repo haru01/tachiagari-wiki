@@ -6,7 +6,7 @@
 # - 人間可読な要約 ontology.md は `python3 tools/gen_ontology_doc.py` でここから生成する（手編集禁止）。
 #
 # 用語:
-#   entity   = レコード種別（P / C / ACT / REF / DEC）とそのサブタイプ（frontmatter type の enum）
+#   entity   = レコード種別（P / C / ACT / LEARN / REF / DEC）とそのサブタイプ（frontmatter type の enum）
 #   relation = レコード間の型付きリンク。domain（始点の型）→ range（終点の型）、
 #              cardinality（one=単一 / many=配列）、inverse（逆方向の呼称）を宣言する。
 #   各 relation は frontmatter 配列 と 本文 wikilink の二重表現を持つ（must-wikilink: true）。

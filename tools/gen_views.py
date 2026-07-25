@@ -181,7 +181,7 @@ def gen_board(project) -> str:
             "risk": fm.get("riskiest-assumption", "—") or "—",
             "method": field_value(tc, "方法"), "criteria": field_value(tc, "成功基準"),
             "result": (learning_point(lbody) or "—") if executed else "（未実施・計画のみ）",
-            "outcome": (lfm.get("outcome", "").strip() or "—") if learn_stem else "未実施",
+            "outcome": (lfm.get("outcome", "").strip() or "—") if executed else "未実施",
             "learn": learn_stem,
             "judgment": " / ".join(dec_by_act.get(stem, [])) or "—",
         }

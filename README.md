@@ -13,7 +13,7 @@
 
 ## レコード種別（型）
 
-`P` 目的仮説 ／ `C` 制約・手中の鳥 ／ `ACT` 試行 ／ `REF` 内省 ／ `DEC` 意思決定。型・関係・状態機械の正本は [ontology.yaml](ontology.yaml)（人間可読は [ontology.md](ontology.md)）。
+`P` 目的仮説 ／ `C` 制約・手中の鳥 ／ `ACT` 試行（行動計画） ／ `LEARN` 学習（実施後の学び） ／ `REF` 内省 ／ `DEC` 意思決定。型・関係・状態機械の正本は [ontology.yaml](ontology.yaml)（人間可読は [ontology.md](ontology.md)）。
 
 ## 使い方（フェーズ1・手動ループ）
 

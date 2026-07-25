@@ -257,7 +257,7 @@ WIKILINK_RE = re.compile(r"\[\[([^\]|#]+)(?:[|#][^\]]*)?\]\]")
 def check_frontmatter_refs(project) -> list:
     """frontmatter の関係リンクを ontology.yaml の宣言で検証する。
 
-    各関係（derived-from / leads-to / grounded-in / revises / purposes / reflects-on / based-on）
+    ontology.yaml で宣言された全関係（learns-from・counters・affects・supersedes を含む）
     について、その関係の domain 種別を持つレコードの frontmatter 参照を、接頭辞つき・実在・
     range 種別・（サブタイプ制約があればサブタイプ）・（単一関係の）cardinality で検証する。
     """
@@ -501,6 +501,21 @@ def check_dec_based_on(project) -> list:
     return problems
 
 
+def check_learn_learns_from(project) -> list:
+    """LEARN は基づく試行（learns-from）に紐づく。宙に浮いた学び（孤立 LEARN）を検出する（warning）。
+
+    学び(LEARN)は行動計画(ACT)を実施した後にだけ立つ＝必ずどれかの ACT に紐づくのが規約。
+    learns-from が空の LEARN は、どの試行の学びか辿れず board にも射影されない。"""
+    problems = []
+    for stem, (_, fm, _) in project.records.items():
+        if "-LEARN-" not in stem:
+            continue
+        if not parse_id_array(fm.get("learns-from", "")):
+            problems.append(Problem("warning", stem, "learn-learns-from",
+                "LEARN に learns-from（基づく試行）が無い（学びは試行 [[ACT-NNN]] に紐づける）"))
+    return problems
+
+
 UNTESTED_CONFIDENCE = 5   # この確信度以上で検証活動ゼロなら「外界に殴られていない高確信」
 
 
@@ -612,7 +627,7 @@ CHECKS = [check_id_matches_filename, check_vocabulary, check_history_consistency
           check_evidence_asymmetry, check_frontmatter_refs, check_wikilinks, check_relation_wikilinks,
           check_id_sequence, check_log_sync, check_index_sync, check_fictional_cap,
           check_evidence_tags, check_status_confidence, check_evidence_floor,
-          check_dec_based_on, check_untested_focus, check_grounding_gaps,
+          check_dec_based_on, check_learn_learns_from, check_untested_focus, check_grounding_gaps,
           check_staleness, check_relation_cycles]
 
 

@@ -9,6 +9,7 @@ TOOLS = Path(__file__).resolve().parent.parent / "tools"
 sys.path.insert(0, str(TOOLS))
 import hwlint  # noqa: E402
 import ontology  # noqa: E402
+import gen_views  # noqa: E402
 
 
 def write(root: Path, rel: str, text: str):
@@ -764,6 +765,33 @@ class LearnsFromTest(unittest.TestCase):
             })
             self.assertTrue(only(root, "relation-wikilink"))
 
+    def test_nonexistent_act_detected(self):
+        # learns-from が実在しない ACT を指す → refs「レコードが存在しない」
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/learnings/DEMO-LEARN-001.md": learn(learns_from="[DEMO-ACT-999]",
+                                                          body="学習元の試行: [[DEMO-ACT-999]]"),
+            })
+            self.assertTrue(any("存在しない" in p.message for p in only(root, "refs")))
+
+    def test_orphan_learn_warned(self):
+        # learns-from が空の LEARN（宙に浮いた学び）→ warning
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/learnings/DEMO-LEARN-001.md": learn(learns_from="", body="学習の記録"),
+            })
+            hits = only(root, "learn-learns-from")
+            self.assertEqual(len(hits), 1)
+            self.assertEqual(hits[0].level, "warning")
+
+    def test_valid_learn_no_orphan_warning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/activities/DEMO-ACT-001.md": act(),
+                "wiki/learnings/DEMO-LEARN-001.md": learn(),
+            })
+            self.assertEqual(only(root, "learn-learns-from"), [])
+
     def test_fictional_learn_caps_linked_act(self):
         # 学び(LEARN)本文の架空マーカーは learns-from の ACT に伝播し、確信度上限8を課す
         rows = ["| 2026-07-01 | 1 | 未検証 | 初期作成 | — |",
@@ -776,6 +804,57 @@ class LearnsFromTest(unittest.TestCase):
                     body_extra="> ⚠️ 架空のシミュレーションデータ。実証拠として扱わない。"),
             })
             self.assertTrue(only(root, "fictional-cap"))
+
+
+class BoardViewTest(unittest.TestCase):
+    """gen_views board が ACT に紐づく LEARN（学びの要点・outcome）を射影するか。"""
+
+    _ACT = act(body="対象目的: [[DEMO-P-001]]\n\n## 行動計画（テストカード）\n\n### 成功基準\n\n1人でも次の一歩を口にしたら支持")
+
+    def _learn_executed(self):
+        return """---
+id: DEMO-LEARN-001
+title: 2人中2人が前向き
+date: 2026-07-05
+learns-from: DEMO-ACT-001
+outcome: 支持
+---
+
+# 2人中2人が前向き
+
+学習元の試行: [[DEMO-ACT-001]]
+
+### 学びの要点
+
+2人とも自分から次の一歩を口にした。
+
+### 事実（observed）
+
+Aさん「来週使う」、Bさん「配りたい」。
+"""
+
+    def test_executed_learn_projected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/purposes/DEMO-P-001.md": purpose(),
+                "wiki/activities/DEMO-ACT-001.md": self._ACT,
+                "wiki/learnings/DEMO-LEARN-001.md": self._learn_executed(),
+            })
+            board = gen_views.gen_board(hwlint.Project(root))
+            self.assertIn("2人とも自分から次の一歩を口にした", board)  # 学びの要点
+            self.assertIn("[[DEMO-LEARN-001]]", board)                # 学びへのリンク
+            self.assertIn("支持", board)                              # outcome
+
+    def test_unexecuted_act_shows_planned(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/purposes/DEMO-P-001.md": purpose(),
+                "wiki/activities/DEMO-ACT-001.md": self._ACT,   # LEARN 無し
+            })
+            board = gen_views.gen_board(hwlint.Project(root))
+            self.assertIn("（未実施・計画のみ）", board)
+            self.assertIn("未実施", board)
+            self.assertNotIn("[[DEMO-LEARN-001]]", board)
 
 
 class OntologyLoaderTest(unittest.TestCase):
@@ -972,6 +1051,50 @@ class TestcardImmutableTest(unittest.TestCase):
                   LEARN_FOR_GIT + "\n### 次のアクション\n\n- 再検証を計画する。\n")
             run("git", "add", "-A"); run("git", "commit", "-m", "learning update")
             result = self._run_checker(repo, "--base", "HEAD~1")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    # --- --staged 経路（pre-commit が実際に叩く経路） ---
+
+    def test_staged_rewrite_after_learn_detected(self):
+        # base（HEAD）に ACT+LEARN。ステージ上で ACT 成功基準を書き換え未コミット → --staged で検出
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            run = self._init_repo(repo)
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md", BASE_ACT_FOR_GIT)
+            write(repo, "projects/demo/wiki/learnings/DEMO-LEARN-001.md", LEARN_FOR_GIT)
+            run("git", "add", "-A"); run("git", "commit", "-m", "base")
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md",
+                  BASE_ACT_FOR_GIT.replace("3名以上", "1名以上"))
+            run("git", "add", "-A")   # ステージのみ（コミットしない）
+            result = self._run_checker(repo, "--staged")
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+
+    def test_staged_rewrite_before_learn_allowed(self):
+        # base（HEAD）に ACT のみ（LEARN 無し）。ステージで ACT を書き換え → --staged で許容
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            run = self._init_repo(repo)
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md", BASE_ACT_FOR_GIT)
+            run("git", "add", "-A"); run("git", "commit", "-m", "base")
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md",
+                  BASE_ACT_FOR_GIT.replace("3名以上", "1名以上"))
+            run("git", "add", "-A")
+            result = self._run_checker(repo, "--staged")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_staged_same_change_learn_and_plan_allowed(self):
+        # 仕様の明文化: base 時点で LEARN が無ければ、同一変更で LEARN 追加＋成功基準書換は許容する
+        # （行動計画の事後補完＝「テストカードは事後補完でよい」運用を壊さないための意図的な緩さ）。
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            run = self._init_repo(repo)
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md", BASE_ACT_FOR_GIT)
+            run("git", "add", "-A"); run("git", "commit", "-m", "base act only")
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md",
+                  BASE_ACT_FOR_GIT.replace("3名以上", "1名以上"))
+            write(repo, "projects/demo/wiki/learnings/DEMO-LEARN-001.md", LEARN_FOR_GIT)
+            run("git", "add", "-A")
+            result = self._run_checker(repo, "--staged")
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
