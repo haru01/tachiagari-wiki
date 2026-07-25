@@ -9,6 +9,7 @@ TOOLS = Path(__file__).resolve().parent.parent / "tools"
 sys.path.insert(0, str(TOOLS))
 import hwlint  # noqa: E402
 import ontology  # noqa: E402
+import gen_views  # noqa: E402
 
 
 def write(root: Path, rel: str, text: str):
@@ -94,6 +95,28 @@ reflects-on: {reflects_on}
 観測した。
 
 {body}
+"""
+
+
+def learn(id="DEMO-LEARN-001", learns_from="[DEMO-ACT-001]", outcome="支持",
+          body="学習元の試行: [[DEMO-ACT-001]]", body_extra=""):
+    return f"""---
+id: {id}
+title: テスト学習
+date: 2026-07-05
+learns-from: {learns_from}
+outcome: {outcome}
+---
+
+# テスト学習
+
+{body}
+
+### 事実（observed）
+
+観測した事実。
+
+{body_extra}
 """
 
 
@@ -701,6 +724,139 @@ class CountersTest(unittest.TestCase):
             self.assertEqual(only(root, "relation-cycle"), [])
 
 
+class LearnsFromTest(unittest.TestCase):
+    """LEARN→ACT（learns-from）。学び(LEARN)は行動計画(ACT)から分離し、実施済み ACT に紐づく。"""
+
+    def test_valid_learns_from_ok(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/purposes/DEMO-P-001.md": purpose(),
+                "wiki/activities/DEMO-ACT-001.md": act(),
+                "wiki/learnings/DEMO-LEARN-001.md": learn(),
+            })
+            self.assertEqual(only(root, "refs"), [])
+            self.assertEqual(only(root, "vocab"), [])
+
+    def test_learns_from_range_violation_points_to_act(self):
+        # learns-from は ACT を指すべき（P を指したら違反）
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/purposes/DEMO-P-001.md": purpose(),
+                "wiki/learnings/DEMO-LEARN-001.md": learn(learns_from="[DEMO-P-001]",
+                                                          body="学習元の試行: [[DEMO-P-001]]"),
+            })
+            self.assertTrue(any("ACT を指すべき" in p.message for p in only(root, "refs")))
+
+    def test_learns_from_cardinality_one(self):
+        # learns-from は単一参照（cardinality one）
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/activities/DEMO-ACT-001.md": act(),
+                "wiki/activities/DEMO-ACT-002.md": act(id="DEMO-ACT-002"),
+                "wiki/learnings/DEMO-LEARN-001.md": learn(learns_from="[DEMO-ACT-001, DEMO-ACT-002]"),
+            })
+            self.assertTrue(any("単一参照" in p.message for p in only(root, "refs")))
+
+    def test_missing_body_wikilink_warned(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/activities/DEMO-ACT-001.md": act(),
+                "wiki/learnings/DEMO-LEARN-001.md": learn(body="学習元の試行"),  # 本文 wikilink 欠落
+            })
+            self.assertTrue(only(root, "relation-wikilink"))
+
+    def test_nonexistent_act_detected(self):
+        # learns-from が実在しない ACT を指す → refs「レコードが存在しない」
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/learnings/DEMO-LEARN-001.md": learn(learns_from="[DEMO-ACT-999]",
+                                                          body="学習元の試行: [[DEMO-ACT-999]]"),
+            })
+            self.assertTrue(any("存在しない" in p.message for p in only(root, "refs")))
+
+    def test_orphan_learn_warned(self):
+        # learns-from が空の LEARN（宙に浮いた学び）→ warning
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/learnings/DEMO-LEARN-001.md": learn(learns_from="", body="学習の記録"),
+            })
+            hits = only(root, "learn-learns-from")
+            self.assertEqual(len(hits), 1)
+            self.assertEqual(hits[0].level, "warning")
+
+    def test_valid_learn_no_orphan_warning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/activities/DEMO-ACT-001.md": act(),
+                "wiki/learnings/DEMO-LEARN-001.md": learn(),
+            })
+            self.assertEqual(only(root, "learn-learns-from"), [])
+
+    def test_fictional_learn_caps_linked_act(self):
+        # 学び(LEARN)本文の架空マーカーは learns-from の ACT に伝播し、確信度上限8を課す
+        rows = ["| 2026-07-01 | 1 | 未検証 | 初期作成 | — |",
+                "| 2026-07-05 | 9 | 立ち上がった | 〈試行〉 | [[DEMO-ACT-001]] |"]
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/purposes/DEMO-P-001.md": purpose(status="立ち上がった", confidence="9", rows=rows),
+                "wiki/activities/DEMO-ACT-001.md": act(),
+                "wiki/learnings/DEMO-LEARN-001.md": learn(
+                    body_extra="> ⚠️ 架空のシミュレーションデータ。実証拠として扱わない。"),
+            })
+            self.assertTrue(only(root, "fictional-cap"))
+
+
+class BoardViewTest(unittest.TestCase):
+    """gen_views board が ACT に紐づく LEARN（学びの要点・outcome）を射影するか。"""
+
+    _ACT = act(body="対象目的: [[DEMO-P-001]]\n\n## 行動計画（テストカード）\n\n### 成功基準\n\n1人でも次の一歩を口にしたら支持")
+
+    def _learn_executed(self):
+        return """---
+id: DEMO-LEARN-001
+title: 2人中2人が前向き
+date: 2026-07-05
+learns-from: DEMO-ACT-001
+outcome: 支持
+---
+
+# 2人中2人が前向き
+
+学習元の試行: [[DEMO-ACT-001]]
+
+### 学びの要点
+
+2人とも自分から次の一歩を口にした。
+
+### 事実（observed）
+
+Aさん「来週使う」、Bさん「配りたい」。
+"""
+
+    def test_executed_learn_projected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/purposes/DEMO-P-001.md": purpose(),
+                "wiki/activities/DEMO-ACT-001.md": self._ACT,
+                "wiki/learnings/DEMO-LEARN-001.md": self._learn_executed(),
+            })
+            board = gen_views.gen_board(hwlint.Project(root))
+            self.assertIn("2人とも自分から次の一歩を口にした", board)  # 学びの要点
+            self.assertIn("[[DEMO-LEARN-001]]", board)                # 学びへのリンク
+            self.assertIn("支持", board)                              # outcome
+
+    def test_unexecuted_act_shows_planned(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/purposes/DEMO-P-001.md": purpose(),
+                "wiki/activities/DEMO-ACT-001.md": self._ACT,   # LEARN 無し
+            })
+            board = gen_views.gen_board(hwlint.Project(root))
+            self.assertIn("（未実施・計画のみ）", board)
+            self.assertIn("未実施", board)
+            self.assertNotIn("[[DEMO-LEARN-001]]", board)
+
+
 class OntologyLoaderTest(unittest.TestCase):
     def test_selfcheck_passes(self):
         self.assertEqual(ontology._selfcheck(), 0)
@@ -710,12 +866,14 @@ class OntologyLoaderTest(unittest.TestCase):
                          ["未検証", "探索中", "立ち上がりつつある", "立ち上がった", "棚上げ"])
         self.assertEqual({r.field for r in ontology.RELATIONS},
                          {"derived-from", "leads-to", "grounded-in", "revises", "counters",
-                          "purposes", "reflects-on", "based-on", "affects", "supersedes"})
+                          "purposes", "learns-from", "reflects-on", "based-on", "affects", "supersedes"})
         self.assertIn("面談", ontology.ACT_TYPES)
         self.assertIn("self-reflection", ontology.ACT_TYPES)
         self.assertIn("自分は誰か", ontology.C_TYPES)
         self.assertEqual(ontology.P_TYPES, set())   # P はサブタイプなし
-        for good in ("SELF-P-001", "SELF-C-001", "SELF-ACT-001", "SELF-REF-001", "SELF-DEC-001"):
+        self.assertEqual(ontology.TYPES_BY_ENTITY["LEARN"], set())  # LEARN はサブタイプなし
+        for good in ("SELF-P-001", "SELF-C-001", "SELF-ACT-001", "SELF-REF-001",
+                     "SELF-DEC-001", "SELF-LEARN-001"):
             self.assertTrue(ontology.ID_RE.match(good), good)
         self.assertFalse(ontology.ID_RE.match("SELF-X-001"))
 
@@ -809,23 +967,35 @@ title: テスト試行
 type: 面談
 date: 2026-07-01
 purposes: [DEMO-P-001]
+riskiest-assumption: 3名以上が前向きに反応する
 ---
 
 # テスト試行
 
-## テストカード（検証前に記入・後から書き換えない）
+対象目的: [[DEMO-P-001]]
 
-- **成功基準**: 3名以上が前向きに反応する。
+## 行動計画（テストカード・検証前に記入・後から書き換えない）
 
-## 学習カード（検証後に記入）
+### 成功基準
+
+3名以上が前向きに反応する。
+"""
+
+LEARN_FOR_GIT = """---
+id: DEMO-LEARN-001
+title: テスト学習
+date: 2026-07-05
+learns-from: DEMO-ACT-001
+outcome: 反証
+---
+
+# テスト学習
+
+学習元の試行: [[DEMO-ACT-001]]
 
 ### 事実（observed）
 
 5名に打診し、2名が前向きだった。
-
-### 解釈（inference）
-
-成功基準は未達。
 """
 
 
@@ -842,11 +1012,13 @@ class TestcardImmutableTest(unittest.TestCase):
             [sys.executable, str(TOOLS / "check_testcard_immutable.py"), *argv],
             cwd=repo, capture_output=True, text=True)
 
-    def test_rewrite_after_learning_detected(self):
+    def test_rewrite_after_learn_detected(self):
+        # 学び(LEARN)が base 時点で紐づいた実施済み ACT の成功基準を書き換え → 検出
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
             run = self._init_repo(repo)
             write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md", BASE_ACT_FOR_GIT)
+            write(repo, "projects/demo/wiki/learnings/DEMO-LEARN-001.md", LEARN_FOR_GIT)
             run("git", "add", "-A"); run("git", "commit", "-m", "base")
             write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md",
                   BASE_ACT_FOR_GIT.replace("3名以上", "1名以上"))
@@ -854,16 +1026,75 @@ class TestcardImmutableTest(unittest.TestCase):
             result = self._run_checker(repo, "--base", "HEAD~1")
             self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
 
-    def test_learning_card_edit_allowed(self):
+    def test_rewrite_before_learn_allowed(self):
+        # まだ学びが無い（検証開始前）ACT の行動計画は直してよい
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
             run = self._init_repo(repo)
             write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md", BASE_ACT_FOR_GIT)
             run("git", "add", "-A"); run("git", "commit", "-m", "base")
             write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md",
-                  BASE_ACT_FOR_GIT + "\n### 次のアクション\n\n- 再検証を計画する。\n")
+                  BASE_ACT_FOR_GIT.replace("3名以上", "1名以上"))
+            run("git", "add", "-A"); run("git", "commit", "-m", "rewrite plan")
+            result = self._run_checker(repo, "--base", "HEAD~1")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_learn_record_edit_allowed(self):
+        # 学び(LEARN)レコード自体の追記は常に許される（activities 配下でないので対象外）
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            run = self._init_repo(repo)
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md", BASE_ACT_FOR_GIT)
+            write(repo, "projects/demo/wiki/learnings/DEMO-LEARN-001.md", LEARN_FOR_GIT)
+            run("git", "add", "-A"); run("git", "commit", "-m", "base")
+            write(repo, "projects/demo/wiki/learnings/DEMO-LEARN-001.md",
+                  LEARN_FOR_GIT + "\n### 次のアクション\n\n- 再検証を計画する。\n")
             run("git", "add", "-A"); run("git", "commit", "-m", "learning update")
             result = self._run_checker(repo, "--base", "HEAD~1")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    # --- --staged 経路（pre-commit が実際に叩く経路） ---
+
+    def test_staged_rewrite_after_learn_detected(self):
+        # base（HEAD）に ACT+LEARN。ステージ上で ACT 成功基準を書き換え未コミット → --staged で検出
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            run = self._init_repo(repo)
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md", BASE_ACT_FOR_GIT)
+            write(repo, "projects/demo/wiki/learnings/DEMO-LEARN-001.md", LEARN_FOR_GIT)
+            run("git", "add", "-A"); run("git", "commit", "-m", "base")
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md",
+                  BASE_ACT_FOR_GIT.replace("3名以上", "1名以上"))
+            run("git", "add", "-A")   # ステージのみ（コミットしない）
+            result = self._run_checker(repo, "--staged")
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+
+    def test_staged_rewrite_before_learn_allowed(self):
+        # base（HEAD）に ACT のみ（LEARN 無し）。ステージで ACT を書き換え → --staged で許容
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            run = self._init_repo(repo)
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md", BASE_ACT_FOR_GIT)
+            run("git", "add", "-A"); run("git", "commit", "-m", "base")
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md",
+                  BASE_ACT_FOR_GIT.replace("3名以上", "1名以上"))
+            run("git", "add", "-A")
+            result = self._run_checker(repo, "--staged")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_staged_same_change_learn_and_plan_allowed(self):
+        # 仕様の明文化: base 時点で LEARN が無ければ、同一変更で LEARN 追加＋成功基準書換は許容する
+        # （行動計画の事後補完＝「テストカードは事後補完でよい」運用を壊さないための意図的な緩さ）。
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            run = self._init_repo(repo)
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md", BASE_ACT_FOR_GIT)
+            run("git", "add", "-A"); run("git", "commit", "-m", "base act only")
+            write(repo, "projects/demo/wiki/activities/DEMO-ACT-001.md",
+                  BASE_ACT_FOR_GIT.replace("3名以上", "1名以上"))
+            write(repo, "projects/demo/wiki/learnings/DEMO-LEARN-001.md", LEARN_FOR_GIT)
+            run("git", "add", "-A")
+            result = self._run_checker(repo, "--staged")
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 

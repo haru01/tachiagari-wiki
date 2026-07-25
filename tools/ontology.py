@@ -31,7 +31,7 @@ class Relation:
     def __init__(self, d: dict):
         self.name = d["name"]
         self.field = d["field"]
-        self.domain = d["domain"]                       # エンティティ種別 "P"/"C"/"ACT"/"REF"/"DEC"
+        self.domain = d["domain"]                       # エンティティ種別 "P"/"C"/"ACT"/"LEARN"/"REF"/"DEC"
         self.range = d["range"]
         self.domain_subtypes = set(d.get("domain-subtypes", []))
         self.range_subtypes = set(d.get("range-subtypes", []))
@@ -55,7 +55,7 @@ def _subtype_names(entity: str) -> list:
 
 
 # ── エンティティ種別ごとの type 語彙(enum) ───────────────────────────
-# サブタイプを持たない種別（P・REF）は空集合＝type フィールドを検証しない。
+# サブタイプを持たない種別（P・LEARN・REF）は空集合＝type フィールドを検証しない。
 TYPES_BY_ENTITY = {key: set(_subtype_names(key)) for key in load()["entities"]}
 P_TYPES = TYPES_BY_ENTITY.get("P", set())
 C_TYPES = TYPES_BY_ENTITY.get("C", set())
@@ -64,7 +64,7 @@ REF_TYPES = TYPES_BY_ENTITY.get("REF", set())
 DEC_TYPES = TYPES_BY_ENTITY.get("DEC", set())
 
 # エンティティ種別 → dir / label / id-infix
-ENTITY_INFIXES = list(load()["entities"].keys())           # ["P", "C", "ACT", "REF", "DEC"]
+ENTITY_INFIXES = list(load()["entities"].keys())           # ["P", "C", "ACT", "LEARN", "REF", "DEC"]
 ENTITY_DIRS = {key: ent["dir"] for key, ent in load()["entities"].items()}
 ENTITY_LABELS = {key: ent["label"] for key, ent in load()["entities"].items()}
 ID_RE = re.compile(r"^[A-Z0-9]+-(?:" + "|".join(map(re.escape, ENTITY_INFIXES)) + r")-\d+$")
@@ -111,7 +111,7 @@ def _selfcheck() -> int:
     load()
     assert ACT_TYPES and DEC_TYPES and C_TYPES, "type enum が空（C/ACT/DEC）"
     assert STATUS_ORDER and set(STATUS_ORDER) == STATUSES, "status 定義の不整合"
-    assert set(ENTITY_INFIXES) == {"P", "C", "ACT", "REF", "DEC"}, "エンティティ種別が期待と違う"
+    assert set(ENTITY_INFIXES) == {"P", "C", "ACT", "REF", "DEC", "LEARN"}, "エンティティ種別が期待と違う"
     assert EVIDENCE_LADDER and EVIDENCE_RANK.get(EVIDENCE_LADDER[0]) == 0, "証拠の階梯が空/不整合"
     for r in RELATIONS:
         assert r.domain in ENTITY_INFIXES and r.range in ENTITY_INFIXES, f"{r.name} の domain/range 不正"

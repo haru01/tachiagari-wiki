@@ -1,4 +1,4 @@
-<!-- 生成物: gen_views.py relations による機械生成。手編集禁止。`python3 tools/gen_views.py relations` で再生成する。生成基準日: 2026-07-24（モード 探索） -->
+<!-- 生成物: gen_views.py relations による機械生成。手編集禁止。`python3 tools/gen_views.py relations` で再生成する。生成基準日: 2026-07-25（モード 探索） -->
 
 # 関係グラフ（self）
 
@@ -55,6 +55,10 @@ flowchart LR
 | 始点 | 関係 | 終点 |
 |---|---|---|
 | [[SELF-ACT-001]] | 検証対象 → | [[SELF-P-001]] |
+
+### 学習元（`learns-from`: LEARN→ACT）
+
+（該当なし）
 
 ### 内省対象（`reflects-on`: REF→P）
 

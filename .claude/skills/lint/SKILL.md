@@ -31,7 +31,7 @@ hwlint が機械的に担うチェック（下記の 1・2・4・5・6・7・8�
 4. ★**未接地の目的**（`grounding-gap`） — 確信度が高いのに `grounded-in`（手中の鳥C）が空。地に足がついていない目的。
 5. ★**index / log / history の不整合**（`history`/`index-sync`/`log-sync`） — frontmatter と履歴最終行・index表・log 記録の食い違い。
 6. ★**確信度とステータスの矛盾**（`status-confidence`/`evidence-floor`） — `status-bounds`（立ち上がった≥7・棚上げ/未検証≤4）や `evidence-floor`（確信度5以上に〈試行〉以上）に反する。
-7. ★**成功基準の事後書き換え**（`check_testcard_immutable.py`） — 学習カード記入済み ACT のテストカード変更。字面が近い意味変更のみ LLM が補う。
+7. ★**成功基準の事後書き換え**（`check_testcard_immutable.py`） — 学び(LEARN)が紐づいた実施済み ACT の行動計画（成功基準）変更。字面が近い意味変更のみ LLM が補う。
 8. ★**ID の不整合**（`id-filename`/`id-seq`） — ファイル名≠id・接頭辞なし・重複・記録のない欠番。
 9. ★**架空/シミュレーションデータの水増し**（`fictional-cap`） — 架空由来で確信度が上限8超。LLM は「明示が十分か」を補う。
 10. ★**関係の型違反・二重表現の欠落・循環**（`refs`/`relation-wikilink`/`relation-cycle`） — range/cardinality 違反・本文 wikilink 欠落・P→P 関係の循環。

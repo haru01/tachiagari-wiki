@@ -48,7 +48,7 @@ def parse_id_array(value: str) -> list:
 
 
 def entity_of(stem: str) -> str:
-    """レコード stem からエンティティ種別（P/C/ACT/REF/DEC）を返す。該当なしは空。"""
+    """レコード stem からエンティティ種別（P/C/ACT/LEARN/REF/DEC）を返す。該当なしは空。"""
     for infix in ENTITY_INFIXES:
         if f"-{infix}-" in stem:
             return infix
@@ -157,7 +157,7 @@ def check_id_matches_filename(project) -> list:
                                     f"frontmatter id '{fid}' がファイル名 '{stem}' と一致しない"))
     for p in project.stray:
         problems.append(Problem("warning", str(p), "id-filename",
-                                "レコード名が ID 規約（<PREFIX>-P/C/ACT/REF/DEC-NNN）に合わない"))
+                                "レコード名が ID 規約（<PREFIX>-P/C/ACT/LEARN/REF/DEC-NNN）に合わない"))
     return problems
 
 
@@ -257,7 +257,7 @@ WIKILINK_RE = re.compile(r"\[\[([^\]|#]+)(?:[|#][^\]]*)?\]\]")
 def check_frontmatter_refs(project) -> list:
     """frontmatter の関係リンクを ontology.yaml の宣言で検証する。
 
-    各関係（derived-from / leads-to / grounded-in / revises / purposes / reflects-on / based-on）
+    ontology.yaml で宣言された全関係（learns-from・counters・affects・supersedes を含む）
     について、その関係の domain 種別を持つレコードの frontmatter 参照を、接頭辞つき・実在・
     range 種別・（サブタイプ制約があればサブタイプ）・（単一関係の）cardinality で検証する。
     """
@@ -409,6 +409,11 @@ def check_fictional_cap(project) -> list:
     problems = []
     fictional_acts = {stem for stem, (_, _, body) in project.records.items()
                       if "-ACT-" in stem and any(m in body for m in FICTIONAL_MARKERS)}
+    # 学び(LEARN)本文の架空マーカーは、その学びが learns-from で紐づく ACT に伝播させる
+    # （確信度履歴は ACT を証拠リンクに持つため。行動計画と学びを分離しても架空上限を貫く）。
+    for stem, (_, fm, body) in project.records.items():
+        if "-LEARN-" in stem and any(m in body for m in FICTIONAL_MARKERS):
+            fictional_acts.update(parse_id_array(fm.get("learns-from", "")))
     for stem, _, _, rows in project.purpose_records():
         for row in rows:
             rc = row["confidence"]
@@ -493,6 +498,21 @@ def check_dec_based_on(project) -> list:
         if not parse_id_array(fm.get("based-on", "")):
             problems.append(Problem("warning", stem, "dec-based-on",
                 "DEC に based-on（根拠活動）が無い（意思決定は活動 [[ACT-NNN]] に紐づける）"))
+    return problems
+
+
+def check_learn_learns_from(project) -> list:
+    """LEARN は基づく試行（learns-from）に紐づく。宙に浮いた学び（孤立 LEARN）を検出する（warning）。
+
+    学び(LEARN)は行動計画(ACT)を実施した後にだけ立つ＝必ずどれかの ACT に紐づくのが規約。
+    learns-from が空の LEARN は、どの試行の学びか辿れず board にも射影されない。"""
+    problems = []
+    for stem, (_, fm, _) in project.records.items():
+        if "-LEARN-" not in stem:
+            continue
+        if not parse_id_array(fm.get("learns-from", "")):
+            problems.append(Problem("warning", stem, "learn-learns-from",
+                "LEARN に learns-from（基づく試行）が無い（学びは試行 [[ACT-NNN]] に紐づける）"))
     return problems
 
 
@@ -607,7 +627,7 @@ CHECKS = [check_id_matches_filename, check_vocabulary, check_history_consistency
           check_evidence_asymmetry, check_frontmatter_refs, check_wikilinks, check_relation_wikilinks,
           check_id_sequence, check_log_sync, check_index_sync, check_fictional_cap,
           check_evidence_tags, check_status_confidence, check_evidence_floor,
-          check_dec_based_on, check_untested_focus, check_grounding_gaps,
+          check_dec_based_on, check_learn_learns_from, check_untested_focus, check_grounding_gaps,
           check_staleness, check_relation_cycles]
 
 

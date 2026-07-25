@@ -13,7 +13,7 @@ description: 新しい個人案件を projects/<slug>/ に雛形から作成し�
    - `<slug>`: ディレクトリ名（小文字・ハイフン。ドッグフーディングは `self`）。既存の `projects/` と重複しないこと。
    - `<PREFIX>`: ID接頭辞（大文字。`self` なら `SELF`）。他案件と重複しないこと（Obsidianのリンク一意性のため）。`projects/current.md` の一覧と照合する。
 
-2. **雛形をコピーする** — `cp -r templates/project/. projects/<slug>/`。これで `sources/`（README付き）と `wiki/`（`purposes/` `constraints/` `activities/` `reflections/` `decisions/`＝空・`.gitkeep`、`views/`＝README、`index.md`・`log.md`・`stage.md`・`explore-log.md`）が揃う。
+2. **雛形をコピーする** — `cp -r templates/project/. projects/<slug>/`。これで `sources/`（README付き）と `wiki/`（`purposes/` `constraints/` `activities/` `learnings/` `reflections/` `decisions/`＝空・`.gitkeep`、`views/`＝README、`index.md`・`log.md`・`stage.md`・`explore-log.md`）が揃う。
 
 3. **雛形のプレースホルダを埋める** — `wiki/stage.md`・`wiki/explore-log.md`・`wiki/log.md` の `YYYY-MM-DD` を今日の日付にする。`stage.md` の初期モードは `探索`。
 
@@ -26,4 +26,4 @@ description: 新しい個人案件を projects/<slug>/ に雛形から作成し�
 - 接頭辞は**全案件で一意**にする。既存 `projects/*/wiki/purposes/` 等の接頭辞を確認する。
 - 雛形（`templates/project/`）自体は編集しない（スキーマ層）。コピー先だけを編集する。
 - 既存案件を上書きしない。`projects/<slug>/` が既にあれば中止してユーザーに確認する。
-- このスキルはレコード（P/C/ACT/REF/DEC）を作らない。器を用意するだけ。中身は `/surface` 以降で作る。
+- このスキルはレコード（P/C/ACT/LEARN/REF/DEC）を作らない。器を用意するだけ。中身は `/surface` 以降で作る。

@@ -28,21 +28,23 @@ description: 壁打ち・試行・第三者反応の生データを取り込み�
    - 壁打ちで目的文の解像度が上がった／前言撤回が要るなら、`/formulate-purpose` の `revises` で**目的文を磨く**（＝言語化の改善であって確信の根拠ではない）。
    - 確信度を**下げる**方向（自分でおかしいと気づいた）は許される。その場合は下げの根拠を書いて履歴に追記してよい（`〈壁打ち〉再考して引き下げ`）。
 
-   ### 3b. trial / third-party（外界に触れた）の場合 — 試行 ACT を介して確信度を提案
-   - 対応する試行 ACT を特定/作成する。`/act-plan`（フェーズ2）で事前に作った ACT があればそれを使う。無ければ `wiki/activities/` の既存最大+1で `ACT-NNN` を採番し `templates/activity.md` で作成（`type`: 打診/やってみる/面談/観察。`purposes` に対象 `[[P-NNN]]`。テストカードは事後補完でよいが成功基準は当時の意図として正直に書く）。生データパスを本文に記す。
-   - **学習カードを記入する**: 学びの要点（一行・board へ射影）／事実（observed・原文引用中心）／解釈（inference）／驚き・想定外。
-   - **成功基準を〈支持／反証／判断保留〉の3値で判定**し、ACT frontmatter `outcome` に永続化する。
+   ### 3b. trial / third-party（外界に触れた）の場合 — 行動計画 ACT に学び LEARN を紐づけて確信度を提案
+
+   行動計画（ACT）と実施後の学び（LEARN）は**別レコード**。ここでは学び LEARN を新しく起こす。
+   - **対応する試行 ACT（行動計画）を特定/作成する**。事前に立てた ACT があればそれを使う。無ければ `wiki/activities/` の既存最大+1で `ACT-NNN` を採番し `templates/activity.md` で作成（`type`: 打診/やってみる/面談/観察。`purposes` に対象 `[[P-NNN]]`・`riskiest-assumption`。行動計画は事後補完でよいが成功基準は当時の意図として正直に書く）。
+   - **学び LEARN を起こす**: `wiki/learnings/` の既存最大+1で `LEARN-NNN` を採番し `templates/learning.md` で作成する。`id` はファイル名と同じ接頭辞つき。`learns-from` に対象の試行 `[[ACT-NNN]]`（**本文にも wikilink**）、`date`、生データパス（冒頭に種別タグ）を記す。本文に: 学びの要点（一行・board へ射影）／事実（observed・原文引用中心）／解釈（inference）／驚き・想定外。
+   - **成功基準を〈支持／反証／判断保留／是正〉で判定**し、LEARN frontmatter `outcome` に永続化する。
    - **確信度・ステータスの更新を提案する**: 対象 P ごとに「現在値 → 提案値・提案ステータス・理由」を提示する。根拠列の先頭に証拠種別タグ（trial→`〈試行〉` または繰り返しなら `〈継続〉`、third-party→`〈他者反応〉`）。**必ずユーザーの承認を得てから反映する**。
      - 成功基準が未達（反証・判断保留）なら原則として確信度を上げない（据え置き／下げる）。
 
-4. **承認後に反映する** — 対象目的 `wiki/purposes/P-NNN.md` の frontmatter `confidence`/`status` を更新し、確信度履歴テーブルに1行追記（活動列に `[[ACT-NNN]]`、根拠列の先頭に証拠種別タグ）。ACT の学習カードの確信度更新テーブルも埋める。
+4. **承認後に反映する** — 対象目的 `wiki/purposes/P-NNN.md` の frontmatter `confidence`/`status` を更新し、確信度履歴テーブルに1行追記（活動列に証拠の試行 `[[ACT-NNN]]`、根拠列の先頭に証拠種別タグ）。LEARN の確信度更新テーブルも埋める。
    - **確信度を上げる行は、根拠タグが〈試行〉以上でなければならない**（hwlint `check_evidence-asymmetry` が壁打ち単体の上昇を error で弾く）。
 
 5. **驚き・想定外は REF に記録するに留める** — このスキルは取り込み・内省・確信度更新に専念する。事実・驚きから新しい目的の種が創発しそうでも、ここでは REF の「驚き」に**記録するだけ**にし、それを新しい目的の種・ピボットに変えるのは `/lemonade`（エフェクチュエーション④レモネード）に委ねる。「驚きが溜まったら `/lemonade` へ」と促す（事後発見は事前登録した検証でないので、仮に起票しても確信度を上げすぎない）。
 
 6. **index と log を更新する** — `wiki/index.md` の該当行を更新。`wiki/log.md` に追記:
    - REF のみ（dialogue）: `## [YYYY-MM-DD] reflection | REF-NNN <要約> → P-NNN 内省（確信度は据え置き）`
-   - 確信度更新あり: `## [YYYY-MM-DD] <ACTのtype> | ACT-NNN <要約> → P-NNN 確信度X→Y/ステータス`
+   - 確信度更新あり: `## [YYYY-MM-DD] <ACTのtype> | ACT-NNN/LEARN-NNN <要約> → P-NNN 確信度X→Y/ステータス`（証拠の試行 ACT と学び LEARN の両IDを載せる）
 
 ## 守ること
 

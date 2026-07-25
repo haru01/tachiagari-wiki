@@ -20,7 +20,7 @@ projects/
 
 ## ID は接頭辞つき（Obsidian のリンク一意性のため）
 
-- ファイル名＝ID で、**案件接頭辞つき**（例 `SELF-P-001.md`）。infix は P/C/ACT/REF/DEC。
+- ファイル名＝ID で、**案件接頭辞つき**（例 `SELF-P-001.md`）。infix は P/C/ACT/LEARN/REF/DEC。
 - 採番は**種別×案件ごと**の既存最大+1。ID再利用禁止（取り下げた番号は欠番）。
 
 ## 新しい案件の作り方

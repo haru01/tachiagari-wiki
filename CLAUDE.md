@@ -20,27 +20,28 @@
 
 レコードの**型**（エンティティ P/C/ACT/REF/DEC とサブタイプ）、レコード間の**型付きリンク**（関係）、形成の**状態機械**（ステータス・確信度・証拠の階梯）は、[ontology.yaml](ontology.yaml) が唯一の正本（SSoT）である。人間可読な要約は [ontology.md](ontology.md)（`python3 tools/gen_ontology_doc.py` で生成・手編集禁止）。ツール（`tools/hwlint.py`・`tools/gen_views.py`）は `tools/ontology.py` 経由でここを読むため、**語彙(enum)・関係・状態機械をコードや本CLAUDE.mdに再定義しない**（二重管理・ドリフト防止）。
 
-**レコード種別**は5つ:
+**レコード種別**は6つ:
 - **P（目的仮説）** — 立ち上げつつある目的。確信度（1軸目）を持つ。
 - **C（制約・手中の鳥）** — Effectuation の所与の資源（自分は誰か／何を知っているか／誰を知っているか）。
-- **ACT（試行）** — 外界への働きかけ（ReAct の Act。打診／やってみる／面談／観察／self-reflection）。
+- **ACT（試行）** — 外界への働きかけの**行動計画**（ReAct の Act の計画。打診／やってみる／面談／観察／self-reflection）。テストカード（目的・方法・指標・成功基準・許容損失）だけを持ち、検証前に立てる。**実施後の学びは書かない**（LEARN に分離）。
+- **LEARN（学習）** — 試行(ACT)を**実施した後**に得た学びの結晶（学びの要点／事実／解釈／驚き／確信度更新提案／次のアクション）。`learns-from` で対象の ACT に紐づく。確信度を動かす根拠はここに集まる。
 - **REF（内省）** — ReAct の Reason/Observe（事実／解釈／驚き）。確信度は持たない。
 - **DEC（意思決定）** — ピボット・巻き戻し・棚上げ・意図的引き下げ・モード切替。
 
-**関係（型付きリンク）** は10種。各々 domain→range・cardinality・inverse を `ontology.yaml` の `relations` で宣言する。`derived-from`（P→P・派生元）／`leads-to`（P→P・因果先）／`grounded-in`（P→C・接地する制約）／`revises`（P→P・書き換え元）／`counters`（P→P・対抗目的）／`purposes`（ACT→P・検証対象）／`reflects-on`（REF→P・内省対象）／`based-on`（DEC→ACT・根拠活動）／`affects`（DEC→P・影響目的）／`supersedes`（DEC→DEC・上書き元）。関係は frontmatter 配列と本文 wikilink の**二重表現**を持つ。系譜（`derived-from`/`leads-to`/`revises`）と `supersedes` は循環禁止だが、`counters` は相互対抗（A↔B）を許容する（自己参照のみ禁止）。
+**関係（型付きリンク）** は11種。各々 domain→range・cardinality・inverse を `ontology.yaml` の `relations` で宣言する。`derived-from`（P→P・派生元）／`leads-to`（P→P・因果先）／`grounded-in`（P→C・接地する制約）／`revises`（P→P・書き換え元）／`counters`（P→P・対抗目的）／`purposes`（ACT→P・検証対象）／`learns-from`（LEARN→ACT・学習元）／`reflects-on`（REF→P・内省対象）／`based-on`（DEC→ACT・根拠活動）／`affects`（DEC→P・影響目的）／`supersedes`（DEC→DEC・上書き元）。関係は frontmatter 配列と本文 wikilink の**二重表現**を持つ。系譜（`derived-from`/`leads-to`/`revises`）と `supersedes` は循環禁止だが、`counters` は相互対抗（A↔B）を許容する（自己参照のみ禁止）。
 
 ## スキル共通規約（全スキルが従う入口）
 
 `.claude/skills/` の各スキルは、冒頭でこの節を参照し**そのスキル固有の手順だけ**を書く（下記の規約を各スキルにコピーしない）。
 
 1. **案件解決** — まず `projects/current.md` の `current-project: <slug>` を読み、「プロジェクト一覧」表で接頭辞（PREFIX）を確定する。以降 `sources/` `wiki/` は `projects/<slug>/` 配下を指す。`/lint` `/view` は現在案件のみを対象にする。
-2. **ID・接頭辞** — ID＝ファイル名＝frontmatter `id` を三者一致させ、すべて案件接頭辞つき（例 `SELF-P-001`）。採番は種別×案件ごとの既存最大+1。再利用禁止（取り下げた番号は欠番として残す）。ID の infix は P/C/ACT/REF/DEC。
+2. **ID・接頭辞** — ID＝ファイル名＝frontmatter `id` を三者一致させ、すべて案件接頭辞つき（例 `SELF-P-001`）。採番は種別×案件ごとの既存最大+1。再利用禁止（取り下げた番号は欠番として残す）。ID の infix は P/C/ACT/LEARN/REF/DEC。
 3. **リンク記法** — 接頭辞つきノート間の相互参照は**必ず本文に wikilink**（`[[SELF-P-001]]`）。schema層（`playbooks/`・`CLAUDE.md` 等）は**相対mdリンク**で書く。`../` の深さは参照元ファイルの位置で変わる:
 
    | 参照元の位置 | 深さ | 例 |
    |---|---|---|
    | `wiki/` 直下（`stage.md`・`index.md`・`explore-log.md`） | `../../../` | `[playbooks/formation.md](../../../playbooks/formation.md)` |
-   | `wiki/<種別>/` 配下（P・C・ACT・REF・DEC） | `../../../../` | `[playbooks/formation.md](../../../../playbooks/formation.md)` |
+   | `wiki/<種別>/` 配下（P・C・ACT・LEARN・REF・DEC） | `../../../../` | `[playbooks/formation.md](../../../../playbooks/formation.md)` |
 4. **.gitkeep** — 空ディレクトリ雛形の `.gitkeep` は、そのディレクトリに最初のレコードを作成したら削除してよい（任意）。
 5. **承認規律** — 確信度・ステータスの変更は必ず ACT/DEC に紐づけ、**提案 → ユーザー承認 → 反映**する（不変ルール参照）。非対話/バッチ実行では、①判定が機械的に定まり、②提案する確信度が証拠の階梯（下記）の範囲に収まる場合に限り、提案内容を明示のうえ自動反映してよい。解釈を要する／証拠の階梯を超える引き上げは、必ず対話で承認を得る。
 
@@ -75,7 +76,7 @@ type: 自分は誰か | 何を知っているか | 誰を知っているか
 ```
 本文: 制約の記述／これがどう目的の出発点になるか。
 
-### 試行 `wiki/activities/<PREFIX>-ACT-NNN.md`
+### 試行（行動計画） `wiki/activities/<PREFIX>-ACT-NNN.md`
 
 ```yaml
 id: <PREFIX>-ACT-001
@@ -84,9 +85,19 @@ type: 打診 | やってみる | 面談 | 観察 | self-reflection
 date: YYYY-MM-DD
 purposes: [<PREFIX>-P-NNN]
 riskiest-assumption: 一文               # 最もリスクの高い前提（この試行で崩れたら目的が崩れる一点）。検証前に記入
-outcome: 起票|支持|反証|判断保留|是正      # 検証後に /reflect が記入（検証前は空＝未実施）
 ```
-本文は2部構成（Strategyzer流）: **テストカード**（検証前・後から書き換えない）: 目的／方法／指標／成功基準。**学習カード**（検証後）: 学びの要点／事実（observed）／解釈（inference）／驚き・想定外／確信度の更新テーブル／次のアクション。
+本文は**行動計画（テストカード・Strategyzer流）だけ**を持つ: 目的／方法／指標／成功基準／許容損失。検証前に立て、成功基準は開始後（学び LEARN が立った後）に書き換えない（後知恵バイアス防止）。**実施後の学び・結果はここに書かない**——別レコード LEARN に分離する。
+
+### 学習 `wiki/learnings/<PREFIX>-LEARN-NNN.md`
+
+```yaml
+id: <PREFIX>-LEARN-001
+title: 短いタイトル
+date: YYYY-MM-DD
+learns-from: <PREFIX>-ACT-NNN         # 単一。この学びが基づく実施済みの試行(ACT)
+outcome: 支持 | 反証 | 判断保留 | 是正    # 成功基準の判定（/reflect が記入）
+```
+本文（学習カード・検証後）: 学びの要点（board に射影）／事実（observed・原文引用中心）／解釈（inference）／驚き・想定外／確信度の更新テーブル（`[[P-NNN]]`・根拠に証拠種別タグ）／次のアクション。試行(ACT)を実施した後にだけ立て、`learns-from` で対象 ACT に紐づける。確信度を動かすのはこの学びに基づく（外界に触れた証拠のときだけ上げる）。
 
 ### 内省 `wiki/reflections/<PREFIX>-REF-NNN.md`
 
@@ -153,7 +164,7 @@ supersedes: [<PREFIX>-DEC-NNN, ...]  # 省略可。上書き/後継する旧意�
 4. `sources/` の既存ファイルは改変・削除しない（新規追加は可）。`wiki/log.md`・`wiki/explore-log.md` は追記のみ。
 5. `wiki/views/` は生成物。記録の修正はレコード側で行い、ビューは再生成する。
 6. ID採番は種別×案件ごとに既存最大+1で接頭辞つき。再利用禁止（取り下げた番号は欠番）。
-7. テストカードの成功基準は検証開始後に書き換えない（後知恵バイアス防止）。
+7. 行動計画(ACT)の成功基準は検証開始後（学び LEARN が立った後）に書き換えない（後知恵バイアス防止）。
 
 ## 探索モードと停滞検知
 

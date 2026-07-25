@@ -20,12 +20,12 @@ generator が目的仮説 frontmatter を射影する: **目的の系譜**図（
 
 ### `board` — 試行ボード（機械生成）
 
-generator が ACT（試行）を1実験＝1エントリで date 昇順に並べ、`riskiest-assumption`・テストカード（方法・成功基準）・学習カードの `学びの要点`・frontmatter `outcome`・DEC逆引きの判断・現在地（P スナップショット＋最新DECの `次の一手`）を**レコードから射影**する。
+generator が ACT（試行＝行動計画）を1実験＝1エントリで date 昇順に並べ、`riskiest-assumption`・行動計画（方法・成功基準）・紐づく学び LEARN（`learns-from` 逆引き）の `学びの要点` と frontmatter `outcome`・DEC逆引きの判断・現在地（P スナップショット＋最新DECの `次の一手`）を**レコードから射影**する。
 - 出力: `wiki/views/board.md`
 
 ### `relations` — 型付き関係グラフ（機械生成）
 
-オントロジー（[ontology.md](../../../ontology.md)）の全関係型を frontmatter から射影する: (1) 全レコード（P/C/ACT/REF/DEC）をノードにした mermaid 型付き関係グラフ、(2) 関係インデックス（関係型ごとの 始点→終点 表）、(3) **バックリンク索引**（各レコードが inverse で誰から参照されているか）、(4) **目的↔制約 接地**（`grounded-in`。未接地の目的を機械集計）。関係を増やしたいときは**ビューでなくレコード側の frontmatter**（`leads-to`・`grounded-in` 等）に書く。
+オントロジー（[ontology.md](../../../ontology.md)）の全関係型を frontmatter から射影する: (1) 全レコード（P/C/ACT/LEARN/REF/DEC）をノードにした mermaid 型付き関係グラフ、(2) 関係インデックス（関係型ごとの 始点→終点 表）、(3) **バックリンク索引**（各レコードが inverse で誰から参照されているか）、(4) **目的↔制約 接地**（`grounded-in`。未接地の目的を機械集計）。関係を増やしたいときは**ビューでなくレコード側の frontmatter**（`leads-to`・`grounded-in` 等）に書く。
 - 出力: `wiki/views/relations.md`
 
 ## 守ること
