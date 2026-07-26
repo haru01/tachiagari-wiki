@@ -12,3 +12,6 @@ __pycache__/
 
 # superpowers/SDD の作業スクラッチ（開発残骸・共有しない）
 .superpowers/
+
+# 現在アクティブな案件の選択（各自ローカル・共有しない）。書式は .env.example
+.env

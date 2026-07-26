@@ -4,7 +4,7 @@
 
 ## 案件（人単位）
 
-目的形成は**案件（人）単位**で分ける。各案件は `projects/<slug>/` 配下に自分の `sources/`（生データ）と `wiki/`（生成・保守層）を持つ。スキーマ層はリポジトリ全体で共有する。現在アクティブな案件は `projects/current.md` の `current-project: <slug>` が持つ。スキルはまず `projects/current.md` を読み、`projects/<slug>/` 配下を対象に動く。
+目的形成は**案件（人）単位**で分ける。各案件は `projects/<slug>/` 配下に自分の `sources/`（生データ）と `wiki/`（生成・保守層）を持つ。スキーマ層はリポジトリ全体で共有する。現在アクティブな案件は各自ローカルの `.env` の `CURRENT_PROJECT=<slug>`（未設定なら `self`）が持つ（`.env` は gitignore・書式は `.env.example`）。スキルはまず `.env` で slug を確定し、`projects/<slug>/` 配下を対象に動く。接頭辞（PREFIX）は `projects/<slug>/wiki/` の既存レコードID（レコードが無ければ `slug` の大文字）から導出する（一覧ファイルは持たない）。
 
 以下このスキーマで `sources/` `wiki/` と書くときは、断りがなければ**現在の案件の `projects/<slug>/sources/`・`projects/<slug>/wiki/`** を指す。
 
@@ -15,6 +15,8 @@
 | Raw Sources（不変層） | `projects/<slug>/sources/` | 人間または `/reflect` が生データを置く。AIは**既存ファイルを改変しない**（新規追加は可・既存の編集禁止）。冒頭に**種別タグ**（trial/dialogue/third-party）を必ず書く |
 | The Wiki（生成・保守層） | `projects/<slug>/wiki/` | AIが規約に従って作成・更新する |
 | The Schema（設定層） | `ontology.yaml`（型・関係の正本）・`CLAUDE.md`・`AGENTS.md`・`playbooks/`・`templates/`・`.claude/skills/` | 人間が合意の上で変更する（全案件共有） |
+
+> **現在案件の選択（`.env`）** は各自ローカル設定で、スキーマ層ではない（gitignore・非共有・選択のみ）。`CURRENT_PROJECT=<slug>` を持ち、未設定なら `self`。書式は `.env.example`。
 
 ## オントロジー（型・関係の正本）
 
@@ -34,7 +36,7 @@
 
 `.claude/skills/` の各スキルは、冒頭でこの節を参照し**そのスキル固有の手順だけ**を書く（下記の規約を各スキルにコピーしない）。
 
-1. **案件解決** — まず `projects/current.md` の `current-project: <slug>` を読み、「プロジェクト一覧」表で接頭辞（PREFIX）を確定する。以降 `sources/` `wiki/` は `projects/<slug>/` 配下を指す。`/lint` `/view` は現在案件のみを対象にする。
+1. **案件解決** — まず `.env` の `CURRENT_PROJECT=<slug>`（未設定・`.env` 無しなら `self`）で slug を確定し、接頭辞（PREFIX）は `projects/<slug>/wiki/` の既存レコードID接頭辞（レコードが無ければ `slug` の大文字）で確定する。以降 `sources/` `wiki/` は `projects/<slug>/` 配下を指す。`/lint` `/view` は現在案件のみを対象にする。
 2. **ID・接頭辞** — ID＝ファイル名＝frontmatter `id` を三者一致させ、すべて案件接頭辞つき（例 `SELF-P-001`）。採番は種別×案件ごとの既存最大+1。再利用禁止（取り下げた番号は欠番として残す）。ID の infix は P/C/ACT/LEARN/REF/DEC。
 3. **リンク記法** — 接頭辞つきノート間の相互参照は**必ず本文に wikilink**（`[[SELF-P-001]]`）。schema層（`playbooks/`・`CLAUDE.md` 等）は**相対mdリンク**で書く。`../` の深さは参照元ファイルの位置で変わる:
 
