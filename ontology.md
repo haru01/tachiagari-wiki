@@ -11,9 +11,8 @@
 |---|---|---|---|
 | `P` | 目的仮説 | `wiki/purposes/` | （サブタイプなし） |
 | `C` | 制約・手中の鳥 | `wiki/constraints/` | 自分は誰か・何を知っているか・誰を知っているか |
-| `ACT` | 試行 | `wiki/activities/` | 打診・やってみる・面談・観察・self-reflection |
-| `LEARN` | 学習 | `wiki/learnings/` | （サブタイプなし） |
-| `REF` | 内省 | `wiki/reflections/` | （サブタイプなし） |
+| `ACT` | 試行 | `wiki/activities/` | 打診・やってみる・面談・観察 |
+| `LEARN` | 学習 | `wiki/learnings/` | 打診・やってみる・面談・観察・self-reflection |
 | `DEC` | 意思決定 | `wiki/decisions/` | モード切替・ピボット・継続・巻き戻し・棚上げ・意図的引き下げ |
 
 ## 関係（型付きリンク）
@@ -28,11 +27,10 @@
 | **書き換え元** | `revises` | P → P | 単一(one) | revised-by（書き換え先） | 必須 | この目的仮説が書き換える／撤回する旧目的仮説（前言撤回の一級市民化） |
 | **検証対象** | `purposes` | ACT → P | 配列(many) | validated-by（検証活動） | 必須 | この試行が検証する目的仮説 |
 | **学習元** | `learns-from` | LEARN → ACT | 単一(one) | learned-by（学習） | 必須 | この学習が基づく試行（実施済みの行動計画）。ACT（計画）と LEARN（学び）を分離する軸 |
-| **内省対象** | `reflects-on` | REF → P | 配列(many) | reflected-by（内省） | 必須 | この内省が対象とする目的仮説 |
 | **根拠活動** | `based-on` | DEC → ACT | 配列(many) | informs（導いた判断） | 必須 | この意思決定の根拠となった試行 |
 | **影響目的** | `affects` | DEC → P | 配列(many) | affected-by（影響した判断） | 必須 | この意思決定が動かした目的仮説（ピボット・巻き戻し・意図的引き下げ等の対象）。目的側から形成の来歴を辿れる |
 | **上書き元** | `supersedes` | DEC → DEC | 配列(many) | superseded-by（上書きした判断） | 必須 | この意思決定が上書き／後継する旧意思決定（旧判断を消さずに覆しの系譜を残す） |
-| **対抗** | `counters` | P → P | 配列(many) | countered-by（対抗される） | 必須 | この目的仮説が対抗する目的仮説（/eff-lemonade 由来の対立仮説・ピボットの種。偽の収束への歯止め） |
+| **対抗** | `counters` | P → P | 配列(many) | countered-by（対抗される） | 必須 | この目的仮説が対抗する目的仮説（/learning のレモネード手順・/chabudai 由来の対立仮説・ピボットの種。偽の収束への歯止め） |
 
 ## 状態機械
 

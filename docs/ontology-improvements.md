@@ -6,8 +6,8 @@
 
 > **このドキュメントの範囲について**
 > 旧版は写像元（`hypothesis-wiki`）の語彙（`hypotheses`/`addresses`/ステージ `CPF`→`PMF`/`H-NNN`/
-> スキル `plan`・`ingest`・`chabudai` 等）で書かれ、現オントロジー（`P`/`C`/`ACT`/`REF`/`DEC`・
-> Effectuation 5原則・ステージ廃止）と乖離していた。実装済みだった改善（SSoT一本化・lint強化・
+> スキル `plan`・`ingest`・`chabudai` 等）で書かれ、現オントロジー（`P`/`C`/`ACT`/`LEARN`/`DEC`・
+> Effectuation 5原則を仮説検証スキルの手順に溶かす・ステージ廃止）と乖離していた。実装済みだった改善（SSoT一本化・lint強化・
 > 証拠タグ一元化・ビュー拡充）は既に本体へ取り込まれ、コードと `tests/` が現時点の正本である。
 > そのため本ファイルは**現オントロジーで今も有効な、まだ着手していない項目のみ**を残す。
 
@@ -38,8 +38,9 @@
 
 実データのプローズには存在するのに、既存関係では表せない構造。新関係・新属性の導入は SSoT の設計変更なので、
 人間の合意を要する。**E3（`affects`）・E4（`supersedes`/`counters`）は合意のうえ実装済み**（関係は現在10種:
-`derived-from`/`leads-to`/`grounded-in`/`revises`/`counters`/`purposes`/`reflects-on`/`based-on`/
-`affects`/`supersedes`）。残るは E1（cluster）・E2（ACT→P 極性）。
+`derived-from`/`leads-to`/`grounded-in`/`revises`/`counters`/`purposes`/`learns-from`/`based-on`/
+`affects`/`supersedes`）。残るは E1（cluster）・E2（ACT→P 極性）。REF（内省）は廃止し LEARN に統合済み
+（回顧型 LEARN＝`type: self-reflection`。`reflects-on` 関係も削除）。
 
 ### OI-E1: 目的のクラスタ（グルーピング）
 
@@ -79,7 +80,7 @@
 - **状態**: **対応済み**（DEC→DEC `supersedes`・P→P `counters`）／反証の連鎖は未対応（OI-E2 の極性待ち）
 - **課題**:
   - **DEC→DEC**: ある意思決定が過去の意思決定を巻き戻す／上書きする関係が frontmatter に無かった。
-  - **対抗目的**: `/eff-lemonade`（レモネード）で生まれる対抗仮説・ピボットの種が、既存目的の「対抗」
+  - **対抗目的**: `/learning` のレモネード手順・`/chabudai` で生まれる対抗仮説・ピボットの種が、既存目的の「対抗」
     として記録されるが型が無くプローズ止まりだった。
   - **反証の連鎖**（未対応）: ある目的の反証が `leads-to`（因果の型）で下流目的へ伝播する構造は、
     ACT→P の極性（OI-E2・保留中）と `leads-to` の合成が要るため、E2 実装後に再検討する。
@@ -135,10 +136,10 @@
      `ontology.STALENESS_DAYS` に射影・`ontology.md` にも記載）。
   2. `hwlint.check_staleness` が基準日（`--today` 引数 or `datetime.date.today()`＝`Project.today`）を使い、
      `立ち上がった` 目的の確信度履歴最終行が閾値超のものを **warning**（error にしない）で報告。
-  3. **数値は自動で下げない**（不変ルール厳守）。再検証を促す可視化のみ。下げたい場合は必ず ACT/DEC
-     （例: `self-reflection` や再検証の試行）に紐づけて人が動かす。テストは `tests/test_hwlint.py::StalenessTest`。
+  3. **数値は自動で下げない**（不変ルール厳守）。再検証を促す可視化のみ。下げたい場合は必ず LEARN/DEC
+     （例: `/chabudai` の回顧型 `self-reflection` LEARN や再検証の試行）に紐づけて人が動かす。テストは `tests/test_hwlint.py::StalenessTest`。
 - **根拠**: `parse_history`（履歴日付は取得済み）、CLAUDE.md「長期放置は `/lint`（LLM）が担う」記述、
-  不変ルール（確信度・ステータスの変更は必ず ACT/DEC に紐づける）。
+  不変ルール（確信度・ステータスの変更は必ず LEARN/DEC に紐づける）。
 
 ### OI-G2: Supersession（旧目的のアーカイブ）の型表現
 
@@ -179,5 +180,5 @@
    （G2 の DEC→DEC 部分も合流）。config 駆動で lint/relations ビュー/ontology.md に自動追従。
 3. **F1（トポロジー指標）** — `relations` ビューへの要約表追加。実データが増えて運用実感が出てから。
 4. **E1（cluster）・E2（ACT→P 極性）** — 残りの表現力拡張。E1 は属性 vs 関係の設計分岐、E2 は ACT
-   `outcome` との役割重複の整理が要る。`/reflect`・`/decide` の実データが溜まり「型が無くて困った」
+   `outcome` との役割重複の整理が要る。`/learning`・`/deciding` の実データが溜まり「型が無くて困った」
    場面を根拠に判断する（それまで保留）。反証の連鎖（OI-E4）は E2 の極性が入ってから再検討。

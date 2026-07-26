@@ -25,7 +25,7 @@ generator が ACT（試行＝行動計画）を1実験＝1エントリで date �
 
 ### `relations` — 型付き関係グラフ（機械生成）
 
-オントロジー（[ontology.md](../../../ontology.md)）の全関係型を frontmatter から射影する: (1) 全レコード（P/C/ACT/LEARN/REF/DEC）をノードにした mermaid 型付き関係グラフ、(2) 関係インデックス（関係型ごとの 始点→終点 表）、(3) **バックリンク索引**（各レコードが inverse で誰から参照されているか）、(4) **目的↔制約 接地**（`grounded-in`。未接地の目的を機械集計）。関係を増やしたいときは**ビューでなくレコード側の frontmatter**（`leads-to`・`grounded-in` 等）に書く。
+オントロジー（[ontology.md](../../../ontology.md)）の全関係型を frontmatter から射影する: (1) 全レコード（P/C/ACT/LEARN/DEC）をノードにした mermaid 型付き関係グラフ、(2) 関係インデックス（関係型ごとの 始点→終点 表）、(3) **バックリンク索引**（各レコードが inverse で誰から参照されているか）、(4) **目的↔制約 接地**（`grounded-in`。未接地の目的を機械集計）。関係を増やしたいときは**ビューでなくレコード側の frontmatter**（`leads-to`・`grounded-in` 等）に書く。
 - 出力: `wiki/views/relations.md`
 
 ## 守ること

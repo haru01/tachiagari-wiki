@@ -6,7 +6,7 @@
 # - 人間可読な要約 ontology.md は `python3 tools/gen_ontology_doc.py` でここから生成する（手編集禁止）。
 #
 # 用語:
-#   entity   = レコード種別（P / C / ACT / LEARN / REF / DEC）とそのサブタイプ（frontmatter type の enum）
+#   entity   = レコード種別（P / C / ACT / LEARN / DEC）とそのサブタイプ（frontmatter type の enum）
 #   relation = レコード間の型付きリンク。domain（始点の型）→ range（終点の型）、
 #              cardinality（one=単一 / many=配列）、inverse（逆方向の呼称）を宣言する。
 #   各 relation は frontmatter 配列 と 本文 wikilink の二重表現を持つ（must-wikilink: true）。
@@ -36,27 +36,27 @@ entities:
     dir: activities
     # 外界への働きかけの「行動計画」（ReAct の Act の計画）。テストカード（目的・方法・指標・成功基準・
     # 許容損失）だけを持ち、検証前に立てる。実施後の学びは LEARN に分離する（行動計画と学びを混ぜない）。
-    # self-reflection は「ゆさぶり」監査の記録用（内省 REF とは別）。
+    # ACT は外界に触れる行為に純化する（内省・監査は回顧型 LEARN の type: self-reflection が担う）。
     subtypes:
       - {name: 打診}            # 声かけ・提案・打診
       - {name: やってみる}       # 試作・小さく実行
       - {name: 面談}            # 面談・インタビュー・対話
       - {name: 観察}            # 観察・現場を見る
-      - {name: self-reflection}  # ゆさぶり（反証監査）活動。テストカード付き
 
   LEARN:
     label: 学習
     dir: learnings
-    # 試行(ACT)を実施した後に得た学びの結晶。学びの要点／事実(observed)／解釈(inference)／
-    # 驚き・想定外／確信度の更新提案／次のアクション を持つ。行動計画(ACT)から分離し、
-    # 実施後にだけ立つ（learns-from で対象の ACT に紐づく）。成功基準の判定は frontmatter outcome。
-    subtypes: []
-
-  REF:
-    label: 内省
-    dir: reflections
-    # ReAct の Reason/Observe。事実／解釈／驚き を記録する。確信度は持たない。
-    subtypes: []
+    # 学びの結晶。学びの要点／事実(observed)／解釈(inference)／驚き・想定外／確信度の更新提案／
+    # 次のアクション を持つ。確信度を動かす担い手はこの LEARN（提案 → 承認 → P へ反映）。
+    # 計画型（打診/やってみる/面談/観察）は learns-from で実施済み ACT に紐づく。
+    # 回顧型（self-reflection＝壁打ち内省・ゆさぶり反証監査）は ACT を持たず学びを直接立てる
+    # （旧・内省 REF はここに統合。壁打ち由来は〈壁打ち〉タグで確信度を上げない）。
+    subtypes:
+      - {name: 打診}
+      - {name: やってみる}
+      - {name: 面談}
+      - {name: 観察}
+      - {name: self-reflection}  # 回顧型。壁打ち内省・ゆさぶり反証監査。learns-from を持たない
 
   DEC:
     label: 意思決定
@@ -141,18 +141,9 @@ relations:
     must-wikilink: true
     label: 学習元
     inverse-label: 学習
+    # 省略可。計画型 LEARN（打診/やってみる/面談/観察）は実施済み ACT に紐づく。
+    # 回顧型 LEARN（type: self-reflection）は ACT を持たず、learns-from を省略する。
     description: この学習が基づく試行（実施済みの行動計画）。ACT（計画）と LEARN（学び）を分離する軸
-
-  - name: reflects-on
-    field: reflects-on
-    domain: REF
-    range: P
-    cardinality: many
-    inverse: reflected-by
-    must-wikilink: true
-    label: 内省対象
-    inverse-label: 内省
-    description: この内省が対象とする目的仮説
 
   - name: based-on
     field: based-on
@@ -197,7 +188,7 @@ relations:
     acyclic: false          # A↔B の相互対抗は正当（自己参照 A→A のみ禁止・相互ループは循環扱いしない）
     label: 対抗
     inverse-label: 対抗される
-    description: この目的仮説が対抗する目的仮説（/eff-lemonade 由来の対立仮説・ピボットの種。偽の収束への歯止め）
+    description: この目的仮説が対抗する目的仮説（/learning のレモネード手順・/chabudai 由来の対立仮説・ピボットの種。偽の収束への歯止め）
 
 # ── 状態機械 ────────────────────────────────────────────────────────
 state-machines:
