@@ -15,7 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 # 語彙(enum)・型・関係・状態機械の定義は ontology.yaml が唯一の正本。ここには再定義しない。
 from ontology import (  # noqa: E402
-    STATUSES, TYPES_BY_ENTITY, C_TYPES, ACT_TYPES, DEC_TYPES, ID_RE, ENTITY_INFIXES, ENTITY_DIRS,
+    STATUSES, TYPES_BY_ENTITY, C_TYPES, ACT_TYPES, LEARN_TYPES, DEC_TYPES, ID_RE, ENTITY_INFIXES, ENTITY_DIRS,
     CONFIDENCE_MIN, CONFIDENCE_MAX, FICTIONAL_CAP, FICTIONAL_MARKERS, STALENESS_DAYS,
     EVIDENCE_TAGS, EVIDENCE_LADDER, EVIDENCE_RANK, EVIDENCE_FLOOR, EXTERNAL_RANK_MIN,
     STATUS_BOUNDS, RELATIONS, RELATIONS_BY_FIELD,
@@ -49,7 +49,7 @@ def parse_id_array(value: str) -> list:
 
 
 def entity_of(stem: str) -> str:
-    """レコード stem からエンティティ種別（P/C/ACT/LEARN/REF/DEC）を返す。該当なしは空。"""
+    """レコード stem からエンティティ種別（P/C/ACT/LEARN/DEC）を返す。該当なしは空。"""
     for infix in ENTITY_INFIXES:
         if f"-{infix}-" in stem:
             return infix
@@ -158,7 +158,7 @@ def check_id_matches_filename(project) -> list:
                                     f"frontmatter id '{fid}' がファイル名 '{stem}' と一致しない"))
     for p in project.stray:
         problems.append(Problem("warning", str(p), "id-filename",
-                                "レコード名が ID 規約（<PREFIX>-P/C/ACT/LEARN/REF/DEC-NNN）に合わない"))
+                                "レコード名が ID 規約（<PREFIX>-P/C/ACT/LEARN/DEC-NNN）に合わない"))
     return problems
 
 
@@ -166,8 +166,7 @@ def check_vocabulary(project) -> list:
     """status・type・confidence の語彙/範囲を規約に照らして検証する。
 
     - P: status・confidence（1-10 整数）を検証。type は持たない。
-    - C/ACT/DEC: type がそのエンティティのサブタイプ enum に含まれること。
-    - REF: type/confidence を持たない（内省は確信度なし）。"""
+    - C/ACT/LEARN/DEC: type がそのエンティティのサブタイプ enum に含まれること。"""
     problems = []
     for stem, (_, fm, _) in project.records.items():
         ent = entity_of(stem)
@@ -178,14 +177,14 @@ def check_vocabulary(project) -> list:
             if not (c.isdigit() and CONFIDENCE_MIN <= int(c) <= CONFIDENCE_MAX):
                 problems.append(Problem("error", stem, "vocab",
                     f"confidence '{c}' は {CONFIDENCE_MIN}-{CONFIDENCE_MAX} の整数でない"))
-        elif ent in ("C", "ACT", "DEC"):
+        elif ent in ("C", "ACT", "LEARN", "DEC"):
             enum = TYPES_BY_ENTITY[ent]
             if fm.get("type") not in enum:
                 problems.append(Problem("error", stem, "vocab", f"type '{fm.get('type')}' は規約外"))
     return problems
 
 
-EVIDENCE_RE = re.compile(r"\[\[([A-Z0-9]+-(?:ACT|DEC)-\d+)\]\]")
+EVIDENCE_RE = re.compile(r"\[\[([A-Z0-9]+-(?:LEARN|ACT|DEC)-\d+)\]\]")
 
 
 def check_history_consistency(project) -> list:
@@ -206,7 +205,10 @@ def check_history_consistency(project) -> list:
 
 
 def check_evidence_links(project) -> list:
-    """不変ルール1: 初期行以降の確信度・ステータス変更は必ず実在する ACT/DEC に紐づく。"""
+    """不変ルール1: 初期行以降の確信度・ステータス変更は必ず実在する LEARN/DEC（または実施した ACT）に紐づく。
+
+    確信度を動かす担い手は学び(LEARN)。回顧型 LEARN（壁打ち内省・ゆさぶり）は ACT を持たず LEARN を直接引く。
+    計画型は LEARN でも、その学びが基づく試行 ACT でも辿れる（後方互換）。"""
     problems = []
     for stem, _, _, rows in project.purpose_records():
         for i, row in enumerate(rows):
@@ -215,7 +217,7 @@ def check_evidence_links(project) -> list:
             ids = EVIDENCE_RE.findall(row["activity"])
             if not ids:
                 problems.append(Problem("error", stem, "evidence",
-                    f"履歴 {row['date']} 行（確信度{row['confidence']}）に [[ACT/DEC]] の証拠リンクが無い"))
+                    f"履歴 {row['date']} 行（確信度{row['confidence']}）に [[LEARN/DEC]] の証拠リンクが無い"))
             for rid in ids:
                 if rid not in project.records:
                     problems.append(Problem("error", stem, "evidence",
@@ -503,17 +505,20 @@ def check_dec_based_on(project) -> list:
 
 
 def check_learn_learns_from(project) -> list:
-    """LEARN は基づく試行（learns-from）に紐づく。宙に浮いた学び（孤立 LEARN）を検出する（warning）。
+    """計画型 LEARN は基づく試行（learns-from）に紐づく。宙に浮いた学び（孤立 LEARN）を検出する（warning）。
 
-    学び(LEARN)は行動計画(ACT)を実施した後にだけ立つ＝必ずどれかの ACT に紐づくのが規約。
-    learns-from が空の LEARN は、どの試行の学びか辿れず board にも射影されない。"""
+    計画型（type: 打診/やってみる/面談/観察）の学び(LEARN)は、実施済み ACT に紐づくのが規約。
+    learns-from が空だと、どの試行の学びか辿れず board にも射影されない。
+    回顧型（type: self-reflection＝壁打ち内省・ゆさぶり反証監査）は ACT を持たず learns-from を省略してよい。"""
     problems = []
     for stem, (_, fm, _) in project.records.items():
         if "-LEARN-" not in stem:
             continue
+        if fm.get("type") == "self-reflection":
+            continue  # 回顧型は learns-from を持たない（旧・内省 REF 相当）
         if not parse_id_array(fm.get("learns-from", "")):
             problems.append(Problem("warning", stem, "learn-learns-from",
-                "LEARN に learns-from（基づく試行）が無い（学びは試行 [[ACT-NNN]] に紐づける）"))
+                "計画型 LEARN に learns-from（基づく試行）が無い（学びは試行 [[ACT-NNN]] に紐づける）"))
     return problems
 
 
@@ -531,7 +536,7 @@ def check_untested_focus(project) -> list:
             continue
         problems.append(Problem("warning", stem, "untested-focus",
             f"確信度{c} なのに検証活動(ACT)が1本も紐づいていない"
-            "（外界に触れていない高確信＝偽の収束の疑い。/reflect で試行を紐づけるか ゆさぶり で引き下げる）"))
+            "（外界に触れていない高確信＝偽の収束の疑い。/planning で試行を設計し /learning で紐づけるか /chabudai で引き下げる）"))
     return problems
 
 
@@ -546,7 +551,7 @@ def check_grounding_gaps(project) -> list:
         if not parse_id_array(fm.get("grounded-in", "")):
             problems.append(Problem("warning", stem, "grounding-gap",
                 f"確信度{c} なのに grounded-in（接地する制約C）が空"
-                "（手中の鳥に根ざしていない目的。/eff-hand で制約を数え grounded-in で結線する）"))
+                "（手中の鳥に根ざしていない目的。/formulating の接地手順で制約を数え grounded-in で結線する）"))
     return problems
 
 
@@ -571,8 +576,8 @@ def check_staleness(project) -> list:
         if days > STALENESS_DAYS:
             problems.append(Problem("warning", stem, "staleness",
                 f"status={STALENESS_STATUS} だが確信度履歴の最終更新（{rows[-1]['date']}）から {days} 日経過"
-                f"（陳腐化の疑い＝上限 {STALENESS_DAYS} 日超）。再検証（/reflect・ゆさぶり）を検討する。"
-                "数値は自動で下げない——下げるなら ACT/DEC に紐づけて人が動かす"))
+                f"（陳腐化の疑い＝上限 {STALENESS_DAYS} 日超）。再検証（/planning→/learning・/chabudai）を検討する。"
+                "数値は自動で下げない——下げるなら LEARN/DEC に紐づけて人が動かす"))
     return problems
 
 

@@ -82,31 +82,15 @@ purposes: {purposes}
 """
 
 
-def ref(id="DEMO-REF-001", reflects_on="[DEMO-P-001]", body="内省対象: [[DEMO-P-001]]"):
-    return f"""---
-id: {id}
-title: テスト内省
-reflects-on: {reflects_on}
----
-
-# テスト内省
-
-### 事実
-
-観測した。
-
-{body}
-"""
-
-
-def learn(id="DEMO-LEARN-001", learns_from="[DEMO-ACT-001]", outcome="支持",
+def learn(id="DEMO-LEARN-001", type="面談", learns_from="[DEMO-ACT-001]", outcome="支持",
           body="学習元の試行: [[DEMO-ACT-001]]", body_extra=""):
+    lf_line = f"learns-from: {learns_from}\n" if learns_from else ""
     return f"""---
 id: {id}
 title: テスト学習
+type: {type}
 date: 2026-07-05
-learns-from: {learns_from}
-outcome: {outcome}
+{lf_line}outcome: {outcome}
 ---
 
 # テスト学習
@@ -176,7 +160,7 @@ class VocabularyTest(unittest.TestCase):
                 "wiki/purposes/DEMO-P-001.md": purpose(),
                 "wiki/constraints/DEMO-C-001.md": constraint(),
                 "wiki/activities/DEMO-ACT-001.md": act(),
-                "wiki/reflections/DEMO-REF-001.md": ref(),
+                "wiki/learnings/DEMO-LEARN-001.md": learn(),
             })
             self.assertEqual(only(root, "vocab"), [])
 
@@ -310,14 +294,6 @@ class RefsTest(unittest.TestCase):
             root = make_project(tmp, {
                 "wiki/constraints/DEMO-C-001.md": constraint(),
                 "wiki/purposes/DEMO-P-002.md": rec,
-            })
-            self.assertEqual(only(root, "refs"), [])
-
-    def test_reflects_on_valid_ok(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = make_project(tmp, {
-                "wiki/purposes/DEMO-P-001.md": purpose(),
-                "wiki/reflections/DEMO-REF-001.md": ref(),
             })
             self.assertEqual(only(root, "refs"), [])
 
@@ -726,7 +702,8 @@ class CountersTest(unittest.TestCase):
 
 
 class LearnsFromTest(unittest.TestCase):
-    """LEARN→ACT（learns-from）。学び(LEARN)は行動計画(ACT)から分離し、実施済み ACT に紐づく。"""
+    """LEARN→ACT（learns-from）。計画型の学び(LEARN)は実施済み ACT に紐づく。
+    回顧型（type: self-reflection＝壁打ち内省・ゆさぶり）は ACT を持たず learns-from を省略してよい。"""
 
     def test_valid_learns_from_ok(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -793,6 +770,17 @@ class LearnsFromTest(unittest.TestCase):
             })
             self.assertEqual(only(root, "learn-learns-from"), [])
 
+    def test_retrospective_learn_no_orphan_warning(self):
+        # 回顧型（type: self-reflection）は learns-from を持たなくても孤立扱いしない（旧・内省 REF 相当）
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/purposes/DEMO-P-001.md": purpose(),
+                "wiki/learnings/DEMO-LEARN-001.md": learn(
+                    type="self-reflection", learns_from="", body="壁打ちの内省を記録した"),
+            })
+            self.assertEqual(only(root, "learn-learns-from"), [])
+            self.assertEqual(only(root, "vocab"), [])
+
     def test_fictional_learn_caps_linked_act(self):
         # 学び(LEARN)本文の架空マーカーは learns-from の ACT に伝播し、確信度上限8を課す
         rows = ["| 2026-07-01 | 1 | 未検証 | 初期作成 | — |",
@@ -816,6 +804,7 @@ class BoardViewTest(unittest.TestCase):
         return """---
 id: DEMO-LEARN-001
 title: 2人中2人が前向き
+type: 打診
 date: 2026-07-05
 learns-from: DEMO-ACT-001
 outcome: 支持
@@ -867,15 +856,17 @@ class OntologyLoaderTest(unittest.TestCase):
                          ["未検証", "探索中", "立ち上がりつつある", "立ち上がった", "棚上げ"])
         self.assertEqual({r.field for r in ontology.RELATIONS},
                          {"derived-from", "leads-to", "grounded-in", "revises", "counters",
-                          "purposes", "learns-from", "reflects-on", "based-on", "affects", "supersedes"})
+                          "purposes", "learns-from", "based-on", "affects", "supersedes"})
         self.assertIn("面談", ontology.ACT_TYPES)
-        self.assertIn("self-reflection", ontology.ACT_TYPES)
+        self.assertNotIn("self-reflection", ontology.ACT_TYPES)   # ACT は外界行動に純化
+        self.assertIn("self-reflection", ontology.LEARN_TYPES)    # 回顧型（旧・内省 REF）は LEARN のサブタイプ
+        self.assertIn("面談", ontology.LEARN_TYPES)
         self.assertIn("自分は誰か", ontology.C_TYPES)
         self.assertEqual(ontology.P_TYPES, set())   # P はサブタイプなし
-        self.assertEqual(ontology.TYPES_BY_ENTITY["LEARN"], set())  # LEARN はサブタイプなし
-        for good in ("SELF-P-001", "SELF-C-001", "SELF-ACT-001", "SELF-REF-001",
+        for good in ("SELF-P-001", "SELF-C-001", "SELF-ACT-001",
                      "SELF-DEC-001", "SELF-LEARN-001"):
             self.assertTrue(ontology.ID_RE.match(good), good)
+        self.assertFalse(ontology.ID_RE.match("SELF-REF-001"))   # REF は廃止
         self.assertFalse(ontology.ID_RE.match("SELF-X-001"))
 
     def test_hwlint_uses_ontology_values(self):
@@ -1015,6 +1006,7 @@ riskiest-assumption: 3名以上が前向きに反応する
 LEARN_FOR_GIT = """---
 id: DEMO-LEARN-001
 title: テスト学習
+type: 打診
 date: 2026-07-05
 learns-from: DEMO-ACT-001
 outcome: 反証

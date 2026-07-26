@@ -4,7 +4,7 @@
 
 ## Claude Code 以外での使い方
 
-- `.claude/skills/` のスキル（`/surface` `/formulate-purpose` `/eff-hand` `/eff-afford` `/eff-quilt` `/reflect` `/eff-lemonade` `/eff-pilot` `/decide` `/view` `/lint` `/new-person`。完全な対応表は CLAUDE.md「ワークフロー」）は Claude Code 用の入口にすぎない。各スキルの実体はただの Markdown 手順書なので、**スキル機構がないエージェントは `.claude/skills/<name>/SKILL.md` を読み、その手順に従って作業する**（対応表は CLAUDE.md「ワークフロー」）。
+- `.claude/skills/` のスキル（骨格: `/new-person` `/surfacing` `/formulating` `/planning` `/learning` `/deciding` ＋横断 `/chabudai` `/view` `/lint`。完全な対応表は CLAUDE.md「ワークフロー」）は Claude Code 用の入口にすぎない。各スキルの実体はただの Markdown 手順書なので、**スキル機構がないエージェントは `.claude/skills/<name>/SKILL.md` を読み、その手順に従って作業する**（対応表は CLAUDE.md「ワークフロー」）。
 - 対象案件は各自ローカルの `.env` の `CURRENT_PROJECT=<slug>` で選ぶ（未設定・`.env` 無しなら `self`）。ツールは `--project <slug>` で明示指定も可。`.env` は gitignore・書式は `.env.example`。
 - 変更後は必ず決定論 lint を実行し、error を残さない:
 
@@ -27,7 +27,7 @@
   ```
 
 - 初回クローン後に `git config core.hooksPath .githooks` を一度実行し、コミット時フックを有効にする。
-- 不変ルール（CLAUDE.md「不変ルール」）は全エージェント共通。特に: `sources/` は読み取り専用・冒頭に種別タグ／**確信度を上げるのは外界に触れた証拠（〈試行〉以上）があるときだけ**（壁打ち単体では上げない）／確信度変更は必ず ACT/DEC に紐づける／`log.md`・`explore-log.md` は追記のみ。
+- 不変ルール（CLAUDE.md「不変ルール」）は全エージェント共通。特に: `sources/` は読み取り専用・冒頭に種別タグ／**確信度を上げるのは外界に触れた証拠（〈試行〉以上）があるときだけ**（壁打ち単体では上げない）／確信度変更は必ず LEARN/DEC に紐づける／`log.md`・`explore-log.md` は追記のみ。
 
 ## 記述言語
 

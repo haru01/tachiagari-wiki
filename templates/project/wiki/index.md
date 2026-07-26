@@ -1,6 +1,6 @@
 # 目的カタログ
 
-目的仮説・制約・意思決定を一覧する。**このファイルはレコードの追加・更新に合わせて保守する**（`/surface` `/formulate-purpose` `/eff-hand` `/reflect` `/decide` が更新）。系譜・関係の詳細ビューは `/view list|relations` で `views/` に再生成できる。
+目的仮説・制約・意思決定を一覧する。**このファイルはレコードの追加・更新に合わせて保守する**（`/surfacing` `/formulating` `/planning` `/learning` `/deciding` が更新）。系譜・関係の詳細ビューは `/view list|relations` で `views/` に再生成できる。
 
 現在の探索モード: [stage.md](stage.md) ／ 活動タイムライン: [log.md](log.md) ／ 探索履歴: [explore-log.md](explore-log.md)
 
@@ -18,7 +18,7 @@
 
 ## 意思決定
 
-全 DEC レコードをここから被参照する（`/decide` が更新）。ピボット・巻き戻し・棚上げ・意図的引き下げ・モード切替もここに載せ、孤立させない。
+全 DEC レコードをここから被参照する（`/deciding` が更新）。ピボット・巻き戻し・棚上げ・意図的引き下げ・モード切替もここに載せ、孤立させない。
 
 | ID | 日付 | タイプ | 要約 | 根拠 |
 |---|---|---|---|---|
