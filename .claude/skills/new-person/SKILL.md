@@ -11,13 +11,13 @@ description: 新しい個人案件を projects/<slug>/ に雛形から作成し�
 
 1. **slug と接頭辞を決める** — ユーザーに確認する（`AskUserQuestion` 可）:
    - `<slug>`: ディレクトリ名（小文字・ハイフン。ドッグフーディングは `self`）。既存の `projects/` と重複しないこと。
-   - `<PREFIX>`: ID接頭辞（大文字。`self` なら `SELF`）。他案件と重複しないこと（Obsidianのリンク一意性のため）。`projects/current.md` の一覧と照合する。
+   - `<PREFIX>`: ID接頭辞（大文字。既定は `slug` の大文字。`self` なら `SELF`）。他案件と重複しないこと（Obsidianのリンク一意性のため）。既存 `projects/*/wiki/` のレコードID接頭辞（レコードが無ければ各 `slug` の大文字）と照合する。
 
 2. **雛形をコピーする** — `cp -r templates/project/. projects/<slug>/`。これで `sources/`（README付き）と `wiki/`（`purposes/` `constraints/` `activities/` `learnings/` `reflections/` `decisions/`＝空・`.gitkeep`、`views/`＝README、`index.md`・`log.md`・`stage.md`・`explore-log.md`）が揃う。
 
 3. **雛形のプレースホルダを埋める** — `wiki/stage.md`・`wiki/explore-log.md`・`wiki/log.md` の `YYYY-MM-DD` を今日の日付にする。`stage.md` の初期モードは `探索`。
 
-4. **現在の案件に登録する** — `projects/current.md` を更新: `current-project: <slug>` に切り替え、「プロジェクト一覧」テーブルに `| <slug> | <PREFIX> | <説明> |` を1行追加する。
+4. **現在の案件に切り替える** — `.env` に `CURRENT_PROJECT=<slug>` を書く（`.env` が無ければ `.env.example` を元に作成）。`.env` は各自ローカル（gitignore）。一覧ファイルは無く、slug・接頭辞は `projects/<slug>/` から導出されるので別途の登録は不要。
 
 5. **確認して終了** — 作成したパスと、以後スキルが `projects/<slug>/` を対象に動くことを伝える。最初の一歩は `/surface`（漠然としたキャリア観から目的仮説の種を出す）へ誘導する。
 

@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hwlint import (  # noqa: E402
     Project, parse_id_array, strip_comments, entity_of, referenced_ids,
 )
+from project import resolve_current_project  # noqa: E402
 # 型・関係・状態機械の定義は ontology.yaml が唯一の正本（ここに再定義しない）。
 from ontology import (  # noqa: E402
     STATUS_EMOJI, STATUS_ORDER, RELATIONS, FICTIONAL_MARKERS, ENTITY_INFIXES, ENTITY_LABELS,
@@ -433,17 +434,13 @@ VIEWS = {
 
 
 def resolve_slug(repo: Path, project):
-    if project:
-        return project
-    cur = (repo / "projects" / "current.md").read_text(encoding="utf-8")
-    m = re.search(r"current-project:\s*(\S+)", cur)
-    return m.group(1) if m else None
+    return resolve_current_project(repo, project)
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="キャリア目的形成Wiki のビュー機械生成（board / list / relations）")
     ap.add_argument("view", choices=list(VIEWS))
-    ap.add_argument("--project", help="対象案件 slug（省略時は projects/current.md）")
+    ap.add_argument("--project", help="対象案件 slug（省略時は .env の CURRENT_PROJECT → self）")
     ap.add_argument("--repo", default=".", help="リポジトリルート")
     ap.add_argument("--out", help="出力先パス（省略時は wiki/views/<既定名> に書き込む）")
     args = ap.parse_args()

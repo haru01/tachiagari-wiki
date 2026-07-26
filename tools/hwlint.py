@@ -20,6 +20,7 @@ from ontology import (  # noqa: E402
     EVIDENCE_TAGS, EVIDENCE_LADDER, EVIDENCE_RANK, EVIDENCE_FLOOR, EXTERNAL_RANK_MIN,
     STATUS_BOUNDS, RELATIONS, RELATIONS_BY_FIELD,
 )
+from project import resolve_current_project  # noqa: E402
 
 
 @dataclass
@@ -643,11 +644,7 @@ def resolve_targets(repo: Path, args) -> list:
     projects_dir = repo / "projects"
     if args.all:
         return [d for d in sorted(projects_dir.iterdir()) if (d / "wiki").is_dir()]
-    slug = args.project
-    if not slug:
-        current = (projects_dir / "current.md").read_text(encoding="utf-8")
-        m = re.search(r"current-project:\s*(\S+)", current)
-        slug = m.group(1) if m else None
+    slug = resolve_current_project(repo, args.project)
     if not slug or not (projects_dir / slug / "wiki").is_dir():
         sys.exit(f"プロジェクトが見つからない: {slug!r}")
     return [projects_dir / slug]
@@ -655,7 +652,7 @@ def resolve_targets(repo: Path, args) -> list:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="キャリア目的形成Wiki の決定論的 lint")
-    ap.add_argument("--project", help="対象案件 slug（省略時は projects/current.md の current-project）")
+    ap.add_argument("--project", help="対象案件 slug（省略時は .env の CURRENT_PROJECT → self）")
     ap.add_argument("--all", action="store_true", help="全案件を対象にする")
     ap.add_argument("--repo", default=".", help="リポジトリルート")
     ap.add_argument("--today", help="staleness 判定の基準日 YYYY-MM-DD（省略時は実行日）")

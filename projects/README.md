@@ -2,9 +2,10 @@
 
 目的形成は**案件（人）単位**で分ける。各案件は自分の生データ（`sources/`）と Wiki（`wiki/`）を1フォルダに持つ。スキーマ層（`ontology.yaml`・`CLAUDE.md`・`AGENTS.md`・`playbooks/`・`templates/`・`.claude/skills/`）はリポジトリ全体で共有する。
 
+現在アクティブな案件は各自ローカルの `.env` の `CURRENT_PROJECT=<slug>`（未設定なら `self`）が指す（`.env` は gitignore・書式はリポ直下の `.env.example`）。案件の一覧ファイルは持たない——slug はこのディレクトリ名、接頭辞（PREFIX）は各案件の既存レコードID（無ければ `slug` の大文字）から導出する。
+
 ```
 projects/
-├── current.md            # 現在アクティブな案件（slug）を指すポインタ
 ├── <slug>/
 │   ├── sources/          # この案件の生データ（不変層・AIは読むだけ・冒頭に種別タグ）
 │   └── wiki/
@@ -25,14 +26,14 @@ projects/
 
 ## 新しい案件の作り方
 
-**推奨: `/new-person` スキル**を使う。`templates/project/` の雛形から `projects/<slug>/` を作り、`projects/current.md` を切り替えるところまで行う。
+**推奨: `/new-person` スキル**を使う。`templates/project/` の雛形から `projects/<slug>/` を作り、`.env` の `CURRENT_PROJECT` を切り替えるところまで行う。
 
 手動で作る場合:
 
 1. `cp -r templates/project/. projects/<slug>/`（`sources/` と空の `wiki/` 一式が揃う）。
 2. `wiki/stage.md`・`explore-log.md`・`log.md` の `YYYY-MM-DD` を今日の日付にする。
-3. 接頭辞（大文字・他案件と重複しない）を決め、`projects/current.md` の一覧に追記して `current-project` を切り替える。
+3. 接頭辞（大文字・他案件のレコードID接頭辞と重複しない。既定は `slug` の大文字）を決める。切り替えは `.env` に `CURRENT_PROJECT=<slug>` を書く（無ければ作成）。
 
 ## 現在の案件
 
-- （まだ無し。`/new-person` で最初の案件を作る。ドッグフーディングは `self`／接頭辞 `SELF`）
+- 切り替えは `.env` の `CURRENT_PROJECT`（未設定なら `self`）。ドッグフーディングは `self`／接頭辞 `SELF`。
