@@ -4,7 +4,7 @@
 
 ## Claude Code 以外での使い方
 
-- `.claude/skills/` のスキル（`/surface` `/formulate-purpose` `/hand` `/afford` `/quilt` `/reflect` `/lemonade` `/pilot` `/decide` `/view` `/lint` `/new-person`。完全な対応表は CLAUDE.md「ワークフロー」）は Claude Code 用の入口にすぎない。各スキルの実体はただの Markdown 手順書なので、**スキル機構がないエージェントは `.claude/skills/<name>/SKILL.md` を読み、その手順に従って作業する**（対応表は CLAUDE.md「ワークフロー」）。
+- `.claude/skills/` のスキル（`/surface` `/formulate-purpose` `/eff-hand` `/eff-afford` `/eff-quilt` `/reflect` `/eff-lemonade` `/eff-pilot` `/decide` `/view` `/lint` `/new-person`。完全な対応表は CLAUDE.md「ワークフロー」）は Claude Code 用の入口にすぎない。各スキルの実体はただの Markdown 手順書なので、**スキル機構がないエージェントは `.claude/skills/<name>/SKILL.md` を読み、その手順に従って作業する**（対応表は CLAUDE.md「ワークフロー」）。
 - 対象案件は各自ローカルの `.env` の `CURRENT_PROJECT=<slug>` で選ぶ（未設定・`.env` 無しなら `self`）。ツールは `--project <slug>` で明示指定も可。`.env` は gitignore・書式は `.env.example`。
 - 変更後は必ず決定論 lint を実行し、error を残さない:
 

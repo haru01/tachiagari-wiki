@@ -21,7 +21,7 @@ description: 目的仮説の種を、反証可能な目的仮説レコード（P
 4. **タイプ・初期確信度・ステータスを決める** — P にサブタイプは無い。証拠がまだ壁打ちだけなら確信度 1-2、探索を始めていれば `status: 探索中`。**外界の証拠がまだ無い段階では確信度を 3 以上に上げない**（証拠の非対称性。上げるのは `/reflect`）。核心の目的なら frontmatter `core: true`。
 
 5. **レコードを発番・作成する** — `wiki/purposes/` の既存最大+1で `P-NNN` を採番（再利用禁止）。`templates/purpose.md` に従って作成。`id` はファイル名と同じ接頭辞つき。`short-title` を書く。
-   - **接地**: 手中の鳥に根ざすなら frontmatter `grounded-in` に対応する制約 `[[C-NNN]]` を列挙し、本文「系譜・接地」にも wikilink を併記する（未接地なら `/hand` を促す）。
+   - **接地**: 手中の鳥に根ざすなら frontmatter `grounded-in` に対応する制約 `[[C-NNN]]` を列挙し、本文「系譜・接地」にも wikilink を併記する（未接地なら `/eff-hand` を促す）。
    - **系譜**: 種が別の P から派生・ピボットしたなら `derived-from`（単一）、因果的に導くなら `leads-to`、を frontmatter＋本文 wikilink の二重表現で書く。
    - 確信度履歴テーブルに初期行を入れる。`.gitkeep` が残っていれば削除してよい。
 

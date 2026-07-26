@@ -197,7 +197,7 @@ relations:
     acyclic: false          # A↔B の相互対抗は正当（自己参照 A→A のみ禁止・相互ループは循環扱いしない）
     label: 対抗
     inverse-label: 対抗される
-    description: この目的仮説が対抗する目的仮説（/lemonade 由来の対立仮説・ピボットの種。偽の収束への歯止め）
+    description: この目的仮説が対抗する目的仮説（/eff-lemonade 由来の対立仮説・ピボットの種。偽の収束への歯止め）
 
 # ── 状態機械 ────────────────────────────────────────────────────────
 state-machines:

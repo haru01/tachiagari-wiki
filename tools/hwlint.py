@@ -546,7 +546,7 @@ def check_grounding_gaps(project) -> list:
         if not parse_id_array(fm.get("grounded-in", "")):
             problems.append(Problem("warning", stem, "grounding-gap",
                 f"確信度{c} なのに grounded-in（接地する制約C）が空"
-                "（手中の鳥に根ざしていない目的。/hand で制約を数え grounded-in で結線する）"))
+                "（手中の鳥に根ざしていない目的。/eff-hand で制約を数え grounded-in で結線する）"))
     return problems
 
 
