@@ -11,8 +11,8 @@ projects/
 │   └── wiki/
 │       ├── purposes/<PREFIX>-P-NNN.md       # 目的仮説
 │       ├── constraints/<PREFIX>-C-NNN.md     # 制約・手中の鳥
-│       ├── activities/<PREFIX>-ACT-NNN.md    # 試行
-│       ├── reflections/<PREFIX>-REF-NNN.md   # 内省
+│       ├── activities/<PREFIX>-ACT-NNN.md    # 試行（行動計画）
+│       ├── learnings/<PREFIX>-LEARN-NNN.md   # 学習（計画型／回顧型）
 │       ├── decisions/<PREFIX>-DEC-NNN.md     # 意思決定
 │       ├── views/         # 生成物
 │       ├── index.md ├── log.md ├── stage.md └── explore-log.md
@@ -21,7 +21,7 @@ projects/
 
 ## ID は接頭辞つき（Obsidian のリンク一意性のため）
 
-- ファイル名＝ID で、**案件接頭辞つき**（例 `SELF-P-001.md`）。infix は P/C/ACT/LEARN/REF/DEC。
+- ファイル名＝ID で、**案件接頭辞つき**（例 `SELF-P-001.md`）。infix は P/C/ACT/LEARN/DEC。
 - 採番は**種別×案件ごと**の既存最大+1。ID再利用禁止（取り下げた番号は欠番）。
 
 ## 新しい案件の作り方

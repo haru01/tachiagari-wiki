@@ -398,6 +398,21 @@ class FictionalCapTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             self.assertEqual(only(self._project(tmp, 8), "fictional-cap"), [])
 
+    def test_confidence_9_via_fictional_learn_in_activity_col_detected(self):
+        # 新規約: 確信度を動かす担い手は LEARN で、確信度履歴の活動列に張るのは LEARN の ID（不変ルール1）。
+        # 架空マーカーを含む LEARN を活動列に張った確信度9 は、上限8違反として検出されること
+        # （活動列を ACT 前提で突き合わせると LEARN-ID が一致せずすり抜ける回帰の防止）。
+        rows = ["| 2026-07-01 | 1 | 未検証 | 初期作成 | — |",
+                "| 2026-07-05 | 9 | 立ち上がった | 〈試行〉 | [[DEMO-LEARN-001]] |"]
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp, {
+                "wiki/purposes/DEMO-P-001.md": purpose(status="立ち上がった", confidence="9", rows=rows),
+                "wiki/activities/DEMO-ACT-001.md": act(),
+                "wiki/learnings/DEMO-LEARN-001.md": learn(
+                    body_extra="> ⚠️ 架空のシミュレーションデータ。実証拠として扱わない。"),
+            })
+            self.assertTrue(only(root, "fictional-cap"))
+
 
 class EvidenceTagTest(unittest.TestCase):
     def test_untagged_reason_warned(self):

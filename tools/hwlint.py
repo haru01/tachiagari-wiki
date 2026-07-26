@@ -407,22 +407,26 @@ def check_index_sync(project) -> list:
 def check_fictional_cap(project) -> list:
     """架空/脳内シミュレーション由来の確信度は上限 FICTIONAL_CAP（それ超は実観測に限る）。
 
-    履歴の**全行**を走査する。行の根拠が架空と判定されるのは、(a) 紐づく ACT が架空マーカーを含む、
-    (b) 根拠セルに 〈架空〉タグ、(c) 根拠セルに架空マーカー、のいずれか。"""
+    履歴の**全行**を走査する。行の根拠が架空と判定されるのは、(a) 活動列が架空マーカーを含む
+    LEARN/ACT を指す、(b) 根拠セルに 〈架空〉タグ、(c) 根拠セルに架空マーカー、のいずれか。
+
+    確信度を動かす担い手は学び(LEARN)で、確信度履歴の活動列に張るのは LEARN の ID（不変ルール1）。
+    そこで架空判定は、まず架空マーカーを含む **LEARN/ACT の stem を直接**集合に入れる。加えて後方互換
+    として、架空 LEARN が learns-from で紐づく ACT も集合へ足す（活動列に旧式で ACT を張った古い履歴用）。"""
     problems = []
-    fictional_acts = {stem for stem, (_, _, body) in project.records.items()
-                      if "-ACT-" in stem and any(m in body for m in FICTIONAL_MARKERS)}
-    # 学び(LEARN)本文の架空マーカーは、その学びが learns-from で紐づく ACT に伝播させる
-    # （確信度履歴は ACT を証拠リンクに持つため。行動計画と学びを分離しても架空上限を貫く）。
+    fictional_sources = {stem for stem, (_, _, body) in project.records.items()
+                         if ("-LEARN-" in stem or "-ACT-" in stem)
+                         and any(m in body for m in FICTIONAL_MARKERS)}
+    # 後方互換: 架空 LEARN が learns-from で紐づく ACT も架空扱い（旧式で活動列に ACT を張った履歴用）。
     for stem, (_, fm, body) in project.records.items():
         if "-LEARN-" in stem and any(m in body for m in FICTIONAL_MARKERS):
-            fictional_acts.update(parse_id_array(fm.get("learns-from", "")))
+            fictional_sources.update(parse_id_array(fm.get("learns-from", "")))
     for stem, _, _, rows in project.purpose_records():
         for row in rows:
             rc = row["confidence"]
             if not rc.isdigit() or int(rc) <= FICTIONAL_CAP:
                 continue
-            hit = [rid for rid in EVIDENCE_RE.findall(row["activity"]) if rid in fictional_acts]
+            hit = [rid for rid in EVIDENCE_RE.findall(row["activity"]) if rid in fictional_sources]
             tagged = "〈架空〉" in row["reason"] or any(m in row["reason"] for m in FICTIONAL_MARKERS)
             if hit or tagged:
                 src = "・".join(hit) if hit else "〈架空〉タグ"
