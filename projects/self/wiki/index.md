@@ -1,6 +1,6 @@
 # 目的カタログ
 
-目的仮説・制約・意思決定を一覧する。**このファイルはレコードの追加・更新に合わせて保守する**（`/surfacing` `/formulating` `/planning` `/learning` `/deciding` が更新）。系譜・関係の詳細ビューは `/view list|relations` で `views/` に再生成できる。
+目的仮説・制約・意思決定を一覧する。**このファイルはレコードの追加・更新に合わせて保守する**（`/surfacing` `/formulating` `/planning` `/learning` `/deciding` が更新）。系譜・関係の詳細ビューは `views/`（Stop フックが自動再生成する機械生成ビュー）を見る。
 
 現在の探索モード: [stage.md](stage.md) ／ 活動タイムライン: [log.md](log.md) ／ 探索履歴: [explore-log.md](explore-log.md)
 

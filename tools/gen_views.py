@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """キャリア目的形成Wiki のビュー機械生成（board / list / relations）。
 
-レコード（SSoT）からビューを決定論的に生成する。/view（LLM）と違い推論・要約・因果の
-キュレーションは行わず、frontmatter・固定見出し・リンクの射影/逐語転記だけで組む。
+レコード（SSoT）からビューを決定論的に生成する。推論・要約・因果のキュレーションは
+一切行わず、frontmatter・固定見出し・リンクの射影/逐語転記だけで組む（ゼロトークン）。
 確信度・ステータス・log は一切変更しない（読み取り専用）。
 
 hwlint.py の Project クラス（records/history/log のパーサ）と共有ヘルパをそのまま再利用する。

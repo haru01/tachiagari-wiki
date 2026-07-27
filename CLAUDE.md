@@ -35,7 +35,7 @@
 
 `.claude/skills/` の各スキルは、冒頭でこの節を参照し**そのスキル固有の手順だけ**を書く（下記の規約を各スキルにコピーしない）。
 
-1. **案件解決** — まず `.env` の `CURRENT_PROJECT=<slug>`（未設定・`.env` 無しなら `self`）で slug を確定し、接頭辞（PREFIX）は `projects/<slug>/wiki/` の既存レコードID接頭辞（レコードが無ければ `slug` の大文字）で確定する。以降 `sources/` `wiki/` は `projects/<slug>/` 配下を指す。`/lint` `/view` は現在案件のみを対象にする。
+1. **案件解決** — まず `.env` の `CURRENT_PROJECT=<slug>`（未設定・`.env` 無しなら `self`）で slug を確定し、接頭辞（PREFIX）は `projects/<slug>/wiki/` の既存レコードID接頭辞（レコードが無ければ `slug` の大文字）で確定する。以降 `sources/` `wiki/` は `projects/<slug>/` 配下を指す。`/lint` とビュー生成（`tools/gen_views.py`）は現在案件のみを対象にする。
 2. **ID・接頭辞** — ID＝ファイル名＝frontmatter `id` を三者一致させ、すべて案件接頭辞つき（例 `SELF-P-001`）。採番は種別×案件ごとの既存最大+1。再利用禁止（取り下げた番号は欠番として残す）。ID の infix は P/C/ACT/LEARN/DEC。
 3. **リンク記法** — 接頭辞つきノート間の相互参照は**必ず本文に wikilink**（`[[SELF-P-001]]`）。schema層（`playbooks/`・`CLAUDE.md` 等）は**相対mdリンク**で書く。`../` の深さは参照元ファイルの位置で変わる:
 
@@ -161,7 +161,7 @@ supersedes: [<PREFIX>-DEC-NNN, ...]  # 省略可。上書き/後継する旧意�
 
 目的形成は「**深掘り（exploit・確信を高める）**」と「**探索（explore・探索域を開き直す）**」の二相を往復する。現在のモードは `wiki/stage.md` の `current-mode`（探索/深掘り）が持つ。往復のトリガーは**停滞検知**。
 
-- **フェーズ1（いま）**: 停滞検知は**手動**。週次で `wiki/explore-log.md` と `/view` を見て、深掘りに偏って停滞していないか本人が判断する。停滞を感じたら `/chabudai`（揺さぶり・深さ方向＝既存Pの確信度を疑い引き下げ／⑤飛行機のパイロット）や `/learning` 末尾のレモネード手順（④・幅方向＝驚き/偶然を逆手に新しい種）・`/surfacing` 再起動で探索域を開き直し、`explore-log.md` に記録する。
+- **フェーズ1（いま）**: 停滞検知は**手動**。週次で `wiki/explore-log.md` と `wiki/views/` を見て、深掘りに偏って停滞していないか本人が判断する。停滞を感じたら `/chabudai`（揺さぶり・深さ方向＝既存Pの確信度を疑い引き下げ／⑤飛行機のパイロット）や `/learning` 末尾のレモネード手順（④・幅方向＝驚き/偶然を逆手に新しい種）・`/surfacing` 再起動で探索域を開き直し、`explore-log.md` に記録する。
 - **フェーズ2以降**: `/stall-check` が停滞シグナル（新規試行の枯渇／確信度の高原／驚きの枯れ／系譜の停止）を自動評価する。ただし**確信度を自動では下げない・必ず本人承認を挟む**。当事者性温度をここで本実装し、偽の収束（確信高×当事者性低）と真の立ち上がり（両方高）を判別する。
 
 ## log.md の形式（追記専用・grep可能）
@@ -175,7 +175,7 @@ type は `purpose` `constraint` `打診` `やってみる` `面談` `観察` `se
 
 キャリア目的形成のループは**仮説検証（目的仮説 P → 試行 ACT → 学び LEARN → 意思決定 DEC）** を基本軸にした直線骨格で回す。**エフェクチュエーションの5原則は独立スキルにせず、この骨格スキルの手順に溶かす**（理論の正本は [playbooks/effectuation.md](playbooks/effectuation.md)）。目的は事前に決めず、手段から行動して事後的に立ち上げる。予測（壁打ち）で確信を膨らませず、行動（試行・他者反応）で確信を育てる（証拠の非対称性）。
 
-骨格: `new-person → surfacing → formulating → planning → learning → deciding` ＋ 横断（`chabudai`／`view`／`lint`）。
+骨格: `new-person → surfacing → formulating → planning → learning → deciding` ＋ 横断（`chabudai`／`lint`）。俯瞰（系譜・試行ボード・関係グラフ）はスキルではなく**機械生成ビュー**が担う（下記）。
 
 | やりたいこと | スキル | 相／溶かした原則 |
 |---|---|---|
@@ -186,8 +186,15 @@ type は `purpose` `constraint` `打診` `やってみる` `面談` `観察` `se
 | 生データ（壁打ち／試行／第三者反応）を取り込み学び LEARN を立て、外界の証拠なら確信度を更新。想定外は種化・ピボットへ手渡す | `/learning` | Act実施→Observe＋④レモネード |
 | ピボット・巻き戻し・棚上げ・意図的引き下げ・モード切替を記録 | `/deciding` | 岐路 |
 | 予測・過信への逃避を突き根拠なき確信度を引き下げ、行動へ引き戻し探索域を開く | `/chabudai` | 揺さぶり・反証監査＋⑤飛行機のパイロット |
-| 系譜・試行ボード・関係グラフを可視化 | `/view` | 俯瞰 |
 | Wikiの健全性チェック（証拠非対称ルール含む） | `/lint` | 保守 |
+
+俯瞰（系譜・試行ボード・関係グラフ）にスキルは無い。`wiki/views/` の3ファイル（`purposes-list.md`・`board.md`・`relations.md`）は `tools/gen_views.py` がレコードから決定論射影する生成物で、Claude Code では Stop フック（`tools/hooks/stop_view_gen.py`）がレコード変更時に自動再生成する。**見たいときは `wiki/views/` を読む**。ターンの途中でレコードを変更した直後など、その場で作り直したいときだけ手動で実行する:
+
+```bash
+python3 tools/gen_views.py list|board|relations   # 現在案件（--project <slug> で指定可）
+```
+
+ビューは生成物であり、記録の修正はレコード側で行って再生成する（不変ルール5）。ビューとレコードが矛盾したら**レコードが正**。
 
 ## 記述言語
 
