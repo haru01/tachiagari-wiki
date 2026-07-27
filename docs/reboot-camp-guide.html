@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>参加者ガイド — AI駆動キャリア目標リブートキャンプ</title>
+</head>
+<body>
+<style>
+  :root{
+    --bg:#eef1f4; --surface:#fbfcfd; --surface-2:#f1f5f7; --sunken:#e4eaee;
+    --ink:#12161c; --ink-2:#49515d; --ink-3:#78828f; --line:#d7dee4; --line-2:#c5ced6;
+    --accent:#0d6f79; --accent-2:#0f8b95; --accent-ink:#0a555d; --accent-soft:#e0eef0;
+    --moment:#cf6f2c; --moment-soft:#f6e7d9; --moment-ink:#9c4f1b;
+    --p:#0d6f79; --c:#4f6f96; --act:#a8742a; --learn:#3f8558; --dec:#a3574f; --ref:#77689e;
+    --heat-0:#8b95a4; --heat-1:#c98f33; --heat-2:#cf6f2c; --heat-3:#b03a2e;
+    --shadow:0 1px 2px rgba(18,22,28,.05), 0 12px 34px -20px rgba(18,22,28,.30);
+    --font-sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,"Noto Sans JP",Meiryo,system-ui,-apple-system,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --pad:clamp(28px,6vw,84px);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0d1116; --surface:#161c23; --surface-2:#1b232b; --sunken:#10161c;
+      --ink:#e9edf1; --ink-2:#a7b1bd; --ink-3:#6d7883; --line:#28313b; --line-2:#333e49;
+      --accent:#2bb7c1; --accent-2:#4fd2db; --accent-ink:#8fe2e9; --accent-soft:#123138;
+      --moment:#e0813f; --moment-soft:#2c2016; --moment-ink:#eaa268;
+      --p:#3ab9c2; --c:#7fa0c9; --act:#d3a054; --learn:#63b884; --dec:#d38079; --ref:#a596d0;
+      --heat-0:#95a0af; --heat-1:#dfae53; --heat-2:#e0813f; --heat-3:#d1564a;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 18px 48px -26px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#eef1f4; --surface:#fbfcfd; --surface-2:#f1f5f7; --sunken:#e4eaee;
+    --ink:#12161c; --ink-2:#49515d; --ink-3:#78828f; --line:#d7dee4; --line-2:#c5ced6;
+    --accent:#0d6f79; --accent-2:#0f8b95; --accent-ink:#0a555d; --accent-soft:#e0eef0;
+    --moment:#cf6f2c; --moment-soft:#f6e7d9; --moment-ink:#9c4f1b;
+    --p:#0d6f79; --c:#4f6f96; --act:#a8742a; --learn:#3f8558; --dec:#a3574f; --ref:#77689e;
+    --heat-0:#8b95a4; --heat-1:#c98f33; --heat-2:#cf6f2c; --heat-3:#b03a2e;
+    --shadow:0 1px 2px rgba(18,22,28,.05), 0 12px 34px -20px rgba(18,22,28,.30);
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d1116; --surface:#161c23; --surface-2:#1b232b; --sunken:#10161c;
+    --ink:#e9edf1; --ink-2:#a7b1bd; --ink-3:#6d7883; --line:#28313b; --line-2:#333e49;
+    --accent:#2bb7c1; --accent-2:#4fd2db; --accent-ink:#8fe2e9; --accent-soft:#123138;
+    --moment:#e0813f; --moment-soft:#2c2016; --moment-ink:#eaa268;
+    --p:#3ab9c2; --c:#7fa0c9; --act:#d3a054; --learn:#63b884; --dec:#d38079; --ref:#a596d0;
+    --heat-0:#95a0af; --heat-1:#dfae53; --heat-2:#e0813f; --heat-3:#d1564a;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 18px 48px -26px rgba(0,0,0,.8);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; font-feature-settings:"palt" 1; overflow:hidden}
+
+  .deck{height:100vh; overflow-y:auto; scroll-snap-type:y mandatory; scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){ .deck{scroll-behavior:auto} }
+  .slide{
+    min-height:100vh; scroll-snap-align:start; scroll-snap-stop:always;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:clamp(48px,8vh,96px) var(--pad); position:relative; border-top:1px solid transparent;
+  }
+  .slide-inner{width:100%; max-width:1000px; margin:0 auto}
+
+  .eyebrow{font-family:var(--font-mono); font-size:clamp(12px,1.3vw,14px); letter-spacing:.2em; text-transform:uppercase;
+    color:var(--accent); font-weight:600; margin:0 0 clamp(16px,2.4vh,26px); display:flex; align-items:center; gap:12px}
+  .eyebrow .no{color:var(--ink-3)}
+  .eyebrow::before{content:""; width:26px; height:2px; background:var(--accent); display:inline-block}
+
+  h1{font-size:clamp(34px,6.4vw,74px); line-height:1.12; letter-spacing:-.015em; font-weight:800; margin:0; text-wrap:balance}
+  h2{font-size:clamp(27px,4.6vw,50px); line-height:1.18; letter-spacing:-.01em; font-weight:800; margin:0 0 clamp(14px,2.2vh,26px); text-wrap:balance}
+  .accent{color:var(--accent)} .accent-m{color:var(--moment)}
+  .lead{font-size:clamp(16px,2vw,23px); line-height:1.7; color:var(--ink-2); max-width:40ch; margin:0}
+  .lead.wide{max-width:52ch}
+  strong{font-weight:700; color:var(--ink)}
+  code{font-family:var(--font-mono)}
+
+  /* fixed chrome */
+  .progress{position:fixed; top:0; left:0; height:3px; background:var(--accent); width:0; z-index:20; transition:width .2s ease}
+  .pageind{position:fixed; bottom:18px; right:22px; z-index:20; font-family:var(--font-mono); font-size:13px; color:var(--ink-3);
+    background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:5px 13px; box-shadow:var(--shadow)}
+  .pageind b{color:var(--ink); font-weight:700}
+  .hint{position:absolute; bottom:26px; left:50%; transform:translateX(-50%); font-family:var(--font-mono); font-size:12px;
+    color:var(--ink-3); letter-spacing:.1em; display:flex; align-items:center; gap:8px; animation:bob 1.8s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,6px)}}
+  @media (prefers-reduced-motion:reduce){ .hint{animation:none} }
+
+  /* title slide */
+  .title-slide{background:radial-gradient(120% 90% at 50% 0%, var(--accent-soft), transparent 60%)}
+  .brand{font-family:var(--font-mono); font-size:clamp(13px,1.5vw,16px); letter-spacing:.1em; color:var(--ink-2); margin:0 0 22px}
+  .title-slide h1{font-size:clamp(36px,7.2vw,84px)}
+  .subtitle{margin-top:26px; font-size:clamp(17px,2.2vw,26px); color:var(--ink-2); font-weight:600}
+
+  /* record chips */
+  .rchip{display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:13px; font-weight:700;
+    color:#fff; padding:4px 12px; border-radius:8px}
+  .rchip[data-r="P"]{background:var(--p)} .rchip[data-r="C"]{background:var(--c)} .rchip[data-r="ACT"]{background:var(--act)}
+  .rchip[data-r="LEARN"]{background:var(--learn)} .rchip[data-r="DEC"]{background:var(--dec)}
+
+  /* loop flow */
+  .loop{display:flex; flex-wrap:wrap; align-items:center; gap:10px 8px; margin-top:8px}
+  .lnode{font-family:var(--font-mono); font-weight:700; font-size:clamp(14px,1.7vw,19px); padding:10px 16px; border-radius:11px;
+    border:1.5px solid var(--line); background:var(--surface); box-shadow:var(--shadow); white-space:nowrap}
+  .lnode small{display:block; font-size:10.5px; color:var(--ink-3); font-weight:600; margin-top:2px; letter-spacing:.02em}
+  .lnode.p{border-color:var(--p)} .lnode.act{border-color:var(--act)} .lnode.learn{border-color:var(--learn)} .lnode.dec{border-color:var(--dec)}
+  .lnode.start{background:var(--surface-2); color:var(--ink-2)}
+  .lnode.end{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .larr{color:var(--moment); font-weight:800; font-size:clamp(16px,2vw,22px)}
+  .loop-note{margin-top:26px; font-size:clamp(14px,1.7vw,18px); color:var(--ink); border-left:4px solid var(--moment);
+    background:var(--moment-soft); border-radius:0 10px 10px 0; padding:14px 20px; max-width:60ch}
+
+  /* feature cards / lists */
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:6px}
+  @media (max-width:760px){ .grid2{grid-template-columns:1fr} }
+  .fcard{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px 22px; box-shadow:var(--shadow); border-left:4px solid var(--accent)}
+  .fcard h3{font-size:clamp(16px,1.9vw,20px); margin:0 0 6px; display:flex; align-items:center; gap:9px}
+  .fcard p{margin:0; font-size:clamp(13px,1.5vw,15.5px); color:var(--ink-2); line-height:1.65}
+  .fcard .role{font-family:var(--font-mono); font-size:12px; color:#fff; padding:1px 8px; border-radius:5px; font-weight:700}
+
+  .points{list-style:none; margin:8px 0 0; padding:0; display:grid; gap:13px}
+  .points li{display:grid; grid-template-columns:auto 1fr; gap:14px; font-size:clamp(15px,1.9vw,20px); line-height:1.55; color:var(--ink-2)}
+  .points .m{color:var(--accent); font-weight:800; font-family:var(--font-mono)}
+  .points li strong{color:var(--ink)}
+
+  /* evidence ladder */
+  .ladder{display:grid; gap:10px; margin-top:8px; max-width:760px}
+  .rung{display:grid; grid-template-columns:130px 1fr; gap:16px; align-items:center}
+  @media (max-width:560px){ .rung{grid-template-columns:96px 1fr} }
+  .rung .rt{font-family:var(--font-mono); font-weight:700; font-size:clamp(14px,1.7vw,18px)}
+  .rung .bar{height:clamp(26px,3.6vh,34px); border-radius:8px; color:#fff; display:flex; align-items:center; padding:0 14px; font-size:clamp(12px,1.4vw,15px); font-weight:600}
+  .r0 .bar{background:var(--heat-0); width:34%} .r1 .bar{background:var(--heat-1); width:56%}
+  .r2 .bar{background:var(--heat-2); width:78%} .r3 .bar{background:var(--heat-3); width:100%}
+  .r0 .rt{color:var(--heat-0)} .r1 .rt{color:var(--heat-1)} .r2 .rt{color:var(--heat-2)} .r3 .rt{color:var(--heat-3)}
+
+  /* step slide layout */
+  .step-grid{display:grid; grid-template-columns:1.15fr 1fr; gap:clamp(18px,3vw,40px); margin-top:8px; align-items:start}
+  @media (max-width:820px){ .step-grid{grid-template-columns:1fr; gap:16px} }
+  .cmd{display:inline-flex; align-items:center; gap:10px; font-family:var(--font-mono); font-size:clamp(18px,2.4vw,28px); font-weight:700;
+    background:var(--sunken); border:1px solid var(--line-2); color:var(--accent-ink); padding:9px 16px; border-radius:11px; margin-bottom:18px}
+  .cmd .pr{color:var(--ink-3)}
+  .qh{font-family:var(--font-mono); font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin:0 0 8px}
+  .qbox{border-left:3px solid var(--accent); padding:2px 0 2px 16px; margin:0 0 18px; display:grid; gap:9px}
+  .qbox p{margin:0; font-size:clamp(15px,1.8vw,19px); color:var(--ink); line-height:1.5}
+  .exbox{background:var(--surface-2); border:1px dashed var(--line-2); border-radius:11px; padding:14px 16px; margin-bottom:16px}
+  .exbox .lbl{font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin-bottom:7px}
+  .exbox p{margin:0 0 6px; font-size:clamp(13.5px,1.6vw,16px); color:var(--ink-2); line-height:1.55}
+  .exbox p:last-child{margin:0}
+  .exbox .you{color:var(--accent-ink); font-weight:600}
+  .sidecard{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow)}
+  .sidecard .row{display:flex; align-items:center; gap:10px; margin-bottom:14px}
+  .sidecard .row .k{font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); font-weight:600; width:52px; flex:none}
+  .point-hi{background:var(--moment-soft); border-left:4px solid var(--moment); border-radius:0 10px 10px 0; padding:13px 16px; margin-top:2px}
+  .point-hi .k{font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--moment-ink); font-weight:700; display:block; margin-bottom:4px}
+  .point-hi p{margin:0; font-size:clamp(13.5px,1.6vw,16px); color:var(--ink); font-weight:600; line-height:1.5}
+
+  .kicker-big{font-size:clamp(20px,2.6vw,30px); font-weight:800; color:var(--accent); margin:0 0 10px}
+  .two-temp{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px}
+  @media (max-width:640px){ .two-temp{grid-template-columns:1fr} }
+  .tt{border:1px solid var(--line); border-radius:12px; padding:16px 18px; background:var(--surface-2); font-size:clamp(13px,1.5vw,15.5px); color:var(--ink-2)}
+  .tt b{color:var(--ink)}
+
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:24px}
+  @media (max-width:680px){ .stats{grid-template-columns:1fr} }
+  .stat{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px; box-shadow:var(--shadow); border-top:3px solid var(--accent)}
+  .stat .big{font-size:clamp(26px,3.8vw,42px); font-weight:800; color:var(--accent); line-height:1; font-variant-numeric:tabular-nums}
+  .stat .cap{font-size:clamp(12px,1.4vw,14px); color:var(--ink-2); margin-top:8px; line-height:1.5}
+  .src{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-3); margin-top:16px}
+  :focus-visible{outline:2px solid var(--accent-2); outline-offset:4px; border-radius:6px}
+</style>
+
+<div class="progress" id="progress"></div>
+<div class="pageind"><b id="cur">01</b> / <span id="total">18</span></div>
+
+<div class="deck" id="deck" tabindex="0">
+
+  <!-- 1 TITLE -->
+  <section class="slide title-slide">
+    <div class="slide-inner">
+      <p class="brand">AI駆動キャリア目標リブートキャンプ ／ 参加者ガイド</p>
+      <h1>この時代だからこそ、<br>目的を、<span class="accent">立ち上げ直そう。</span></h1>
+      <p class="subtitle">壁打ちで終わらせない。行動で、確信を育てる半日。</p>
+    </div>
+    <div class="hint">▼ スクロール／↓キーで進む</div>
+  </section>
+
+  <!-- 2 背景 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>時代背景</span><span class="no"></span></p>
+      <h2>これまでの延長線上のキャリアが、<br>限界を迎えている</h2>
+      <p class="lead wide">AIが当たり前になり、「正解を予測して積み上げる」キャリア戦略の前提が崩れた。仕事に必要なスキルは、かつてない速さで入れ替わっている。</p>
+      <div class="stats">
+        <div class="stat"><div class="big">約40%</div><div class="cap">2030年までに変わる、仕事に必要なスキル</div></div>
+        <div class="stat"><div class="big">5年未満</div><div class="cap">スキルの半減期（技術職は約2.5年）</div></div>
+        <div class="stat"><div class="big">22%</div><div class="cap">2030年までに再編される仕事。多くは消えず“中身が変わる”</div></div>
+      </div>
+      <p class="src">出典: WEF「Future of Jobs Report 2025」／Harvard Business Review</p>
+    </div>
+  </section>
+
+  <!-- 3 なぜ変容 ① アジャイルコーチ・SM -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>なぜ変容が求められるのか ① アジャイルコーチ・SM</span><span class="no"></span></p>
+      <h2>セレモニーの運営から、<br><span class="accent">不確実性の伴走</span>へ</h2>
+      <p class="lead wide" style="margin-bottom:20px">AIが定例の要約・レポート・進捗の可視化を肩代わりする。<strong>「儀式の運営が上手い」だけでは価値を示しにくい</strong>——プロセスの機械的な部分から先にAIに置き換わる。開発が速くなるほど、勝負は<strong>「誰のために、どんな切実な課題を解くために作るのか」という問いに誠実に向き合うこと</strong>へ移る。</p>
+      <div class="grid2">
+        <div class="fcard"><h3><span class="role" style="background:var(--accent)">役割</span>役割の変容</h3><p>プロセスの番人 → チームが<strong>仮説検証・学習を回すのを引き出す触媒</strong>へ。空気を読み、上辺だけのコミットを見抜き、事業成果と現場をつなぐ——AIに代替されにくい人間的判断。</p></div>
+        <div class="fcard" style="border-left-color:var(--moment)"><h3><span class="role" style="background:var(--moment)">行動</span>行動の変容</h3><p>顧客やチームに説く経験駆動を、<strong>まず自分のキャリアと支援で実践する</strong>。予測でなく、小さな実験で確かめる。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3b なぜ変容 ② エンジニア -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>なぜ変容が求められるのか ② エンジニア</span><span class="no"></span></p>
+      <h2>コードを書く人から、<br><span class="accent">AIと課題を切り拓く人</span>へ</h2>
+      <p class="lead wide" style="margin-bottom:20px">AIコーディング支援がルーティンな実装を吸収する。<strong>「書く」より、設計・レビュー・判断に時間の重心が移る</strong>。技術スキルの半減期は約2.5年——同じスキルのまま走り続けられない。よく定義された孤立タスクほど、先にAIが担う。</p>
+      <div class="grid2">
+        <div class="fcard"><h3><span class="role" style="background:var(--accent)">役割</span>役割の変容 — 両側へ</h3><p><strong>①先進的で込み入った技術へダイブ</strong>：AIがまだ苦手な領域を切り拓く。<strong>②顧客・ドメインの理解へ</strong>：誰のどんな切実な課題を解くかを枠づける。実装者から、設計・判断・舵取りへ。</p></div>
+        <div class="fcard" style="border-left-color:var(--moment)"><h3><span class="role" style="background:var(--moment)">行動</span>行動の変容</h3><p>小さく試して学び、<strong>絶えず作り直す</strong>。ドメイン知識 × ツール習熟を掛け合わせ、AIの出力を導き検証する側に立つ。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 アンチパターン -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow" style="color:var(--moment)"><span>アンチパターン</span><span class="no">03</span></p>
+      <h2 style="color:var(--moment)">AI壁打ち沼</h2>
+      <p class="lead wide">「AI対話で前進した気になる」罠。AIといくら壁打ちしても、<strong>外界には一度も触れていない</strong>。言語化は進み、もっともらしい計画は量産できるのに、確信の根拠はゼロのまま。——AIが当たり前になった今、最も嵌まりやすい落とし穴。</p>
+    </div>
+  </section>
+
+  <!-- 4 研修目的（軸メッセージ） -->
+  <section class="slide" style="background:radial-gradient(120% 90% at 50% 100%, var(--accent-soft), transparent 62%)">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>この研修の目的</span><span class="no">04</span></p>
+      <h2>壁打ちに、とどまらない。</h2>
+      <p class="lead wide" style="font-size:clamp(18px,2.4vw,27px); color:var(--ink)">
+        <strong class="accent">仮説を立て、行動し、学びを得て、判断する</strong>——
+        この一巡を<strong>繰り返し、記録し</strong>、自分だけの<strong class="accent-m">インサイト</strong>を得る。
+      </p>
+      <p class="lead wide" style="margin-top:18px">キャリアの目的は、頭の中でなく、この繰り返しの中で立ち上がる。</p>
+    </div>
+  </section>
+
+  <!-- 5 ループ図 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>全体の流れ</span><span class="no">05</span></p>
+      <h2>記録して回す、キャリアの学習ループ</h2>
+      <div class="loop">
+        <span class="lnode start">壁打ち<small>AIと言語化</small></span>
+        <span class="larr">→</span>
+        <span class="lnode p">仮説<small>P 目的仮説</small></span>
+        <span class="larr">→</span>
+        <span class="lnode act">行動<small>ACT 行動計画</small></span>
+        <span class="larr">→</span>
+        <span class="lnode learn">学び<small>LEARN 学習</small></span>
+        <span class="larr">→</span>
+        <span class="lnode dec">判断<small>DEC 意思決定</small></span>
+        <span class="larr">↻</span>
+        <span class="lnode end">インサイト<small>記録から見える</small></span>
+      </div>
+      <p class="loop-note"><strong>貫く原則＝証拠の非対称性。</strong> 壁打ちだけでは確信は上がらない。外界に触れた行動（試行・他者反応）で、初めて上がる。</p>
+    </div>
+  </section>
+
+  <!-- 6 特徴1 記録が主役 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>ツールの特徴 ①</span><span class="no">06</span></p>
+      <h2>記録が主役 — 対話で終わらせず、型で残す</h2>
+      <p class="lead wide" style="margin-bottom:22px">思考の各要素を<strong>型のついたレコード</strong>として残すから、後から「この確信はどの行動の、どの反応に基づくか」を辿れる。</p>
+      <div class="grid2">
+        <div class="fcard" style="border-left-color:var(--p)"><h3><span class="role" style="background:var(--p)">P</span>目的仮説</h3><p>立ち上げつつある目的。「確信度」を持つ唯一のレコード。</p></div>
+        <div class="fcard" style="border-left-color:var(--act)"><h3><span class="role" style="background:var(--act)">ACT</span>行動計画</h3><p>やる<strong>前</strong>に立てる試行の計画（方法・成功基準・許容損失）。結果は書かない。</p></div>
+        <div class="fcard" style="border-left-color:var(--learn)"><h3><span class="role" style="background:var(--learn)">LEARN</span>学習</h3><p>やった<strong>後</strong>の学び（事実・解釈・驚き）。確信度を動かす根拠はここ。</p></div>
+        <div class="fcard" style="border-left-color:var(--dec)"><h3><span class="role" style="background:var(--dec)">DEC</span>意思決定</h3><p>ピボット・棚上げ・巻き戻しなど岐路の判断を残す。</p></div>
+      </div>
+      <p class="lead wide" style="margin-top:16px; font-size:clamp(13px,1.5vw,15px); color:var(--ink-3)">＊ほかに C（手中の鳥＝手の内の資源）。壁打ちや内省は LEARN の<strong>回顧型（type: self-reflection）</strong>として残す（＝独立レコードは持たない）。ACTとLEARNをあえて分ける＝成功基準を後からこっそり書き換える後知恵バイアスを防ぐ。</p>
+    </div>
+  </section>
+
+  <!-- 7 特徴2 証拠の非対称性 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>ツールの特徴 ②・核心</span><span class="no">07</span></p>
+      <h2>確信度は、壁打ちでは上がらない</h2>
+      <p class="lead wide" style="margin-bottom:20px">外界に触れた行動があったときだけ上がる。しかも<strong>ツールが機械的に</strong>それを守る——壁打ちだけで確信度を盛ろうとすると lint がエラーで弾く。「言うだけ」でない。</p>
+      <div class="ladder">
+        <div class="rung r0"><span class="rt">壁打ち</span><div class="bar">AIとの対話のみ — 上がらない</div></div>
+        <div class="rung r1"><span class="rt">試行</span><div class="bar">自分で小さくやってみた</div></div>
+        <div class="rung r2"><span class="rt">他者反応</span><div class="bar">第三者が実際に動いた</div></div>
+        <div class="rung r3"><span class="rt">継続</span><div class="bar">繰り返し起きている</div></div>
+      </div>
+      <p class="lead" style="margin-top:16px; font-size:clamp(13px,1.5vw,15px); color:var(--ink-3)">証拠の階梯（弱→強）。壁打ちログは、目的文を磨く・確信度を下げるのには自由に使える。上げるときだけ外界の証拠を要求する。</p>
+    </div>
+  </section>
+
+  <!-- 8 特徴3 事後的に立ち上がる -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>ツールの特徴 ③</span><span class="no"></span></p>
+      <h2>不確実な領域では、<br>目的すら“事後的に”立ち現れる</h2>
+      <p class="lead wide">不確実性が高いほど、目的は先に決めきれない。<strong>手段だけでなく、目的そのものを探索する。</strong>手の内にあるものから小さく動き、外界の反応を受けて、目的は事後的に立ち現れてくる。</p>
+      <p class="lead wide" style="margin-top:14px"><strong>だから、はじめの確信度は低くていい（1〜2）。</strong>そこで確信を高めようと焦らない。記録が溜まると、<strong>系譜・試行ボード</strong>に「確信が 1→5→7 と育った軌跡」と「次に確かめるべき目的」が見えてくる——それが<strong class="accent-m">インサイト</strong>だ。</p>
+      <div class="two-temp">
+        <div class="tt"><b>二つの温度。</b> 「頭の確信（目的の硬さ）」と「当事者性（腰の入り）」は別物。</div>
+        <div class="tt"><b>偽の収束に注意。</b> 確信は高いのに腰が入っていない状態を、いちばん警戒する。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 特徴4 規律 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>ツールの特徴 ④</span><span class="no">09</span></p>
+      <h2>規律が、誠実な学習を守る</h2>
+      <ul class="points">
+        <li><span class="m">◆</span><span><strong>生データ（sources）は書き換えない。</strong> 観測した事実を後から都合よく上書きしない。</span></li>
+        <li><span class="m">◆</span><span><strong>成功基準は後から変えない。</strong> 「うまくいったことにする」を構造で禁じる。</span></li>
+        <li><span class="m">◆</span><span><strong>確信度の増減は、必ず外界の出来事に紐づく。</strong> 「なんとなく自信がついた」を許さない。</span></li>
+        <li><span class="m">◆</span><span><strong>ビュー（一覧・系譜）は自動生成。</strong> 見栄えを手で飾れない＝真実源はレコード。</span></li>
+      </ul>
+      <p class="lead wide" style="margin-top:18px">だから記録は、自分に都合よく作った物語でなく、<strong>学習の正直な鏡</strong>になる。</p>
+    </div>
+  </section>
+
+  <!-- 10 手順0 セットアップ -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>ハンズオン手順 0</span><span class="no">10</span></p>
+      <h2>まず、自分の「案件」を用意する</h2>
+      <div class="cmd"><span class="pr">&gt;</span>/new-person</div>
+      <p class="lead wide">配られた<strong>接頭辞（あなた専用のID名前空間）</strong>で、自分の作業場を作る。器を用意するだけ——中身はここから作っていく。最初の一歩は次の <code>/surfacing</code>。</p>
+    </div>
+  </section>
+
+  <!-- 11 手順1 surfacing -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>ハンズオン手順 1 · 種を出す</span><span class="no">11</span></p>
+      <h2>目的の種を引き出す</h2>
+      <div class="step-grid">
+        <div>
+          <div class="cmd"><span class="pr">&gt;</span>/surfacing</div>
+          <p class="qh">中心の問い</p>
+          <div class="qbox">
+            <p>「最近、時間を忘れて没頭した／つい手が伸びることは？（<strong>過去の事実</strong>で）」</p>
+            <p>「頼まれなくてもやってしまう・放っておけないことは？」</p>
+          </div>
+          <div class="exbox"><div class="lbl">入力例</div>
+            <p class="you">「頼まれてないのに Claude Code でツールを作ってしまう」</p>
+            <p class="you">「休日でも社内勉強会の資料をつい直している」</p>
+          </div>
+        </div>
+        <div class="sidecard">
+          <div class="row"><span class="k">産物</span><span class="rchip" data-r="P">P 目的仮説</span></div>
+          <p class="lead" style="font-size:15px; margin-bottom:14px">確信度 <strong>1〜2</strong>・未検証で起票。種は種でよい。</p>
+          <div class="point-hi"><span class="k">ポイント</span><p>壁打ちで確信度を上げない。ここは「広げる」場。</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 手順2 手中の鳥（/formulating の中で ①） -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>ハンズオン手順 2 · 手中の鳥〔/formulating の中で ①〕</span><span class="no">12</span></p>
+      <h2>手の内の資源を数える</h2>
+      <div class="step-grid">
+        <div>
+          <div class="cmd"><span class="pr">&gt;</span>/formulating</div>
+          <p class="qh">三分法で1つずつ</p>
+          <div class="qbox">
+            <p><strong>自分は誰か</strong>（価値観・向き）／<strong>何を知っているか</strong>（経験・専門）／<strong>誰を知っているか</strong>（つながり）</p>
+          </div>
+          <div class="exbox"><div class="lbl">入力例</div>
+            <p class="you">「Rubyのメタプロが得意で社内で相談される」</p>
+            <p class="you">「前職の勉強会コミュニティに月1で顔を出せる」</p>
+          </div>
+        </div>
+        <div class="sidecard">
+          <div class="row"><span class="k">産物</span><span class="rchip" data-r="C">C 制約</span></div>
+          <p class="lead" style="font-size:15px; margin-bottom:14px">目的に <code>grounded-in</code> で接地。地に足をつける。</p>
+          <div class="point-hi"><span class="k">ポイント</span><p>制約は「制限」でなく<strong>出発点</strong>。いま実際に使える資源で書く。<code>/formulating</code> の精錬手順の一部。</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 手順3 精錬（/formulating の中で ②） -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>ハンズオン手順 3 · 精錬〔/formulating の中で ②〕</span><span class="no">13</span></p>
+      <h2>反証可能な「仮説」に鍛える</h2>
+      <div class="step-grid">
+        <div>
+          <div class="cmd"><span class="pr">&gt;</span>/formulating</div>
+          <p class="qh">中心の問い</p>
+          <div class="qbox">
+            <p>「何が起きたら“やっぱり違った”と分かる？（<strong>反証条件</strong>）」</p>
+            <p>「その目的を果たす“具体的な一日”は？ 誰に・何を・どうやって」</p>
+          </div>
+          <div class="exbox"><div class="lbl">入力例</div>
+            <p class="you">「“社内の非エンジニアが自分で業務ツールを作れる状態”を実現したい。半年やって誰も自作しなければ違ったと分かる」</p>
+          </div>
+        </div>
+        <div class="sidecard">
+          <div class="row"><span class="k">産物</span><span class="rchip" data-r="P">P 精錬</span></div>
+          <p class="lead" style="font-size:15px; margin-bottom:14px">「私は〈状況〉のもと〈誰/何〉のため〈目的〉を果たしたい」。</p>
+          <div class="point-hi"><span class="k">ポイント</span><p><strong>反証条件を言えない文は、仮説ではない。</strong></p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 手順4 許容損失（/planning の中で ③） -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>ハンズオン手順 4 · 許容可能な損失〔/planning の中で ③〕</span><span class="no">14</span></p>
+      <h2>「失ってよい量」で、次の一歩を決める</h2>
+      <div class="step-grid">
+        <div>
+          <div class="cmd"><span class="pr">&gt;</span>/planning</div>
+          <p class="qh">中心の問い</p>
+          <div class="qbox">
+            <p>「結果に関わらず<strong>失ってよい量</strong>はどこまで？」（時間／お金／評判／機会）</p>
+            <p>「“痛いが致命的でない”線はどこ？」</p>
+          </div>
+          <div class="exbox"><div class="lbl">入力例</div>
+            <p class="you">「自部署だけで1時間×2回、平日夜。人が集まらなくてもOK」</p>
+            <p class="you">「教材づくりに週末2日＋数千円までなら失ってよい」</p>
+          </div>
+        </div>
+        <div class="sidecard">
+          <div class="row"><span class="k">産物</span><span class="rchip" data-r="ACT">ACT 行動計画</span></div>
+          <p class="lead" style="font-size:15px; margin-bottom:14px">許容損失＋「崩れたら目的が崩れる一点」を明記。</p>
+          <div class="point-hi"><span class="k">ポイント</span><p>上振れでGOを出さない。<strong>失ってよい量</strong>でGO/分割/却下。</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 手順5 クレイジーキルト（/planning の中で ④） -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>ハンズオン手順 5 · クレイジーキルト〔/planning の中で ④〕</span><span class="no">15</span></p>
+      <h2>乗ってくれる人に、事前コミットを頼む</h2>
+      <div class="step-grid">
+        <div>
+          <div class="cmd"><span class="pr">&gt;</span>/planning</div>
+          <p class="qh">中心の問い</p>
+          <div class="qbox">
+            <p>「この目的に乗ってくれそうな人・場は？」</p>
+            <p>「相手に頼む<strong>最小のコミット</strong>は？（時間・紹介・次に会う約束）」</p>
+          </div>
+          <div class="exbox"><div class="lbl">入力例</div>
+            <p class="you">「隣チームのリーダーに“次の定例で15分ハンズオン枠”をもらう約束を取りにいく」</p>
+          </div>
+        </div>
+        <div class="sidecard">
+          <div class="row"><span class="k">産物</span><span class="rchip" data-r="ACT">ACT 打診</span></div>
+          <p class="lead" style="font-size:15px; margin-bottom:14px">成功基準＝相手が具体的なコミットをするか。</p>
+          <div class="point-hi"><span class="k">ポイント</span><p>お世辞・「いいね」は証拠でない。<strong>相手がコストを払う約束</strong>だけ。</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 手順6 ペア演習 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>ハンズオン手順 6 · ペア演習</span><span class="no">16</span></p>
+      <h2>相互インタビュー（The Mom Test）</h2>
+      <p class="lead wide" style="margin-bottom:20px">ペアで、相手の目的を聞き合う。1on1相手と組めば、そのまま次の1on1のリハーサルになる。</p>
+      <ul class="points">
+        <li><span class="m">1</span><span>未来の意図でなく<strong>過去の事実</strong>を聞く。「応援したい？」ではなく「最近その分野で<strong>実際に動いた</strong>ことは？いつ・何を？」</span></li>
+        <li><span class="m">2</span><span>自分の<strong>仮説を先に見せない</strong>（見せると相手は気を遣って肯定する）。</span></li>
+        <li><span class="m">3</span><span>相手の反応を〈壁打ち／試行／他者反応／継続〉に<strong>仕分け</strong>。「面白いね」は証拠にならない。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 17 到達点＋フォロー -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>半日の到達点 → その先</span><span class="no">17</span></p>
+      <h2>持ち帰るのは、明日試せる「一歩」</h2>
+      <p class="kicker-big">半日のゴール＝行動計画（ACT）を1本、許容損失つきで。</p>
+      <ul class="points">
+        <li><span class="m">→</span><span><strong>外界で試す。</strong> 1on1・チーム対話・実務・カンファレンス——設計した一歩をぶつける。</span></li>
+        <li><span class="m">→</span><span><strong>2〜4週間後のフォローで <code>/learning</code>。</strong> 反応を取り込み <span class="rchip" data-r="LEARN" style="font-size:11px; padding:2px 8px">LEARN</span> を起こし、証拠に基づいて<strong>確信度を更新</strong>（＝ここで初めて上がる）。</span></li>
+        <li><span class="m">→</span><span>驚きが溜まれば <code>/learning</code> のレモネード手順、確信が甘ければ <code>/chabudai</code> で揺さぶる。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 18 クロージング -->
+  <section class="slide title-slide">
+    <div class="slide-inner">
+      <p class="eyebrow"><span>まとめ</span><span class="no">18</span></p>
+      <h2>記録が溜まるほど、<br>自分の輪郭が見えてくる。</h2>
+      <p class="lead wide" style="margin-bottom:24px">系譜・ボードに「確信が育った軌跡」と「次に確かめるべき目的」が浮かぶ。それがAI壁打ち沼を抜けた先の<strong class="accent-m">インサイト</strong>。</p>
+      <h1 style="font-size:clamp(30px,5.6vw,60px)">目的を、<span class="accent">立ち上げ直そう。</span></h1>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function(){
+    var deck=document.getElementById('deck');
+    var slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var cur=document.getElementById('cur'), tot=document.getElementById('total'), prog=document.getElementById('progress');
+    tot.textContent=String(slides.length).padStart(2,'0');
+    slides.forEach(function(s,i){ var n=s.querySelector('.eyebrow .no'); if(n){ n.textContent=String(i+1).padStart(2,'0'); } });
+    function idx(){ return Math.round(deck.scrollTop/deck.clientHeight); }
+    function update(){
+      var i=Math.min(slides.length-1,Math.max(0,idx()));
+      cur.textContent=String(i+1).padStart(2,'0');
+      prog.style.width=((i)/(slides.length-1)*100)+'%';
+    }
+    function go(d){
+      var i=Math.min(slides.length-1,Math.max(0,idx()+d));
+      slides[i].scrollIntoView();
+    }
+    deck.addEventListener('scroll',update,{passive:true});
+    deck.focus();
+    document.addEventListener('keydown',function(e){
+      if(e.key==='ArrowDown'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); go(1); }
+      else if(e.key==='ArrowUp'||e.key==='PageUp'){ e.preventDefault(); go(-1); }
+      else if(e.key==='Home'){ e.preventDefault(); slides[0].scrollIntoView(); }
+      else if(e.key==='End'){ e.preventDefault(); slides[slides.length-1].scrollIntoView(); }
+    });
+    update();
+  })();
+</script>
+
+</body>
+</html>
