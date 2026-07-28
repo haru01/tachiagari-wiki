@@ -1,4 +1,5 @@
-<!-- 生成物: gen_views.py relations による機械生成。手編集禁止。`python3 tools/gen_views.py relations` で再生成する。生成基準日: 2026-07-26（モード 探索） -->
+<!-- 生成物: gen_views.py relations による機械生成。手編集禁止。`python3 tools/gen_views.py relations` で再生成する。生成基準日: 2026-07-28（モード 探索） -->
+<!-- ⚠️ 架空/シミュレーションデータを含む活動: [[SELF-LEARN-001]] [[SELF-LEARN-002]]。これら由来の確信度・判断は実データ未検証。 -->
 
 # 関係グラフ（self）
 
@@ -9,26 +10,35 @@
 ```mermaid
 flowchart LR
     subgraph P["目的仮説 P"]
-      SELF_P_001["P-001★ 効くツールで支援<br/>確信度2 ⚪未検証"]
+      SELF_P_001["P-001★ 効くツールで支援<br/>確信度2 🔍探索中"]
+      SELF_P_002["P-002 リーダー育成支援<br/>確信度1 ⚪未検証"]
     end
     subgraph C["制約・手中の鳥 C"]
       SELF_C_001["C-001 Claude Code でのツール/プロ…"]
       SELF_C_002["C-002 方法論の引き出し（DDD・仮説検証）"]
       SELF_C_003["C-003 作り手であり、抽象を言語化する整理役"]
       SELF_C_004["C-004 社内のエンジニア／チーム（試作を見せられ…"]
+      SELF_C_005["C-005 経験主義者——試行錯誤で事後的に対象を理…"]
     end
     subgraph ACT["試行 ACT"]
       SELF_ACT_001["ACT-001 訪問先マネージャ2人にtachiagar…"]
       SELF_ACT_002["ACT-002 別会社の同僚1人にhypothesis-…"]
       SELF_ACT_003["ACT-003 社内の同僚1人に/lean-canvas…"]
     end
+    subgraph LEARN["学習 LEARN"]
+      SELF_LEARN_001["LEARN-001 自力でH/TESTまで到達したが前進の具…"]
+      SELF_LEARN_002["LEARN-002 育成というテーマは当たったが「1on1の…"]
+    end
     SELF_P_001 -->|接地する制約| SELF_C_001
     SELF_P_001 -->|接地する制約| SELF_C_002
     SELF_P_001 -->|接地する制約| SELF_C_003
     SELF_P_001 -->|接地する制約| SELF_C_004
+    SELF_P_001 -->|接地する制約| SELF_C_005
     SELF_ACT_001 -->|検証対象| SELF_P_001
     SELF_ACT_002 -->|検証対象| SELF_P_001
     SELF_ACT_003 -->|検証対象| SELF_P_001
+    SELF_LEARN_001 -->|学習元| SELF_ACT_002
+    SELF_LEARN_002 -->|学習元| SELF_ACT_001
 ```
 
 ## 関係インデックス
@@ -49,6 +59,7 @@ flowchart LR
 | [[SELF-P-001]] | 接地する制約 → | [[SELF-C-002]] |
 | [[SELF-P-001]] | 接地する制約 → | [[SELF-C-003]] |
 | [[SELF-P-001]] | 接地する制約 → | [[SELF-C-004]] |
+| [[SELF-P-001]] | 接地する制約 → | [[SELF-C-005]] |
 
 ### 書き換え元（`revises`: P→P）
 
@@ -64,7 +75,10 @@ flowchart LR
 
 ### 学習元（`learns-from`: LEARN→ACT）
 
-（該当なし）
+| 始点 | 関係 | 終点 |
+|---|---|---|
+| [[SELF-LEARN-001]] | 学習元 → | [[SELF-ACT-002]] |
+| [[SELF-LEARN-002]] | 学習元 → | [[SELF-ACT-001]] |
 
 ### 根拠活動（`based-on`: DEC→ACT）
 
@@ -84,10 +98,13 @@ flowchart LR
 
 ## バックリンク索引（誰から・どの関係で参照されているか）
 
+- [[SELF-ACT-001]] ← 学習: [[SELF-LEARN-002]]
+- [[SELF-ACT-002]] ← 学習: [[SELF-LEARN-001]]
 - [[SELF-C-001]] ← 接地する目的: [[SELF-P-001]]
 - [[SELF-C-002]] ← 接地する目的: [[SELF-P-001]]
 - [[SELF-C-003]] ← 接地する目的: [[SELF-P-001]]
 - [[SELF-C-004]] ← 接地する目的: [[SELF-P-001]]
+- [[SELF-C-005]] ← 接地する目的: [[SELF-P-001]]
 - [[SELF-P-001]] ← 検証活動: [[SELF-ACT-001]] [[SELF-ACT-002]] [[SELF-ACT-003]]
 
 ## 目的↔制約 接地（grounded-in）
@@ -96,6 +113,7 @@ flowchart LR
 
 | 目的 | 接地する制約 |
 |---|---|
-| [[SELF-P-001]] 効くツールでエンジニアの新領域挑戦を支援する | [[SELF-C-001]] [[SELF-C-002]] [[SELF-C-003]] [[SELF-C-004]] |
+| [[SELF-P-001]] 効くツールでエンジニアの新領域挑戦を支援する | [[SELF-C-001]] [[SELF-C-002]] [[SELF-C-003]] [[SELF-C-004]] [[SELF-C-005]] |
+| [[SELF-P-002]] 顧客の考えるテーマに真摯に向き合える次世代リーダーの育成を支援する | **空白** |
 
-- **未接地の目的**（接地する制約がない）: なし
+- **未接地の目的**（接地する制約がない）: [[SELF-P-002]]
